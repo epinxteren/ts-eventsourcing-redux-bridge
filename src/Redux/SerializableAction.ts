@@ -1,5 +1,5 @@
 import { EntityMetadata, hasEntityMetadata } from './EntityMetadata';
-import { Playhead } from '../Value/Playhead';
+import { Playhead } from '../ValueObject/Playhead';
 
 export function isSerializableAction(action: any): action is SerializableAction {
   return hasEntityMetadata(action) &&

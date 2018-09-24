@@ -7,6 +7,7 @@
     "outDir": "./build",
     "importHelpers": true,
     "esModuleInterop": true,
+    "jsx": "react",
     /* Basic Options */
     "skipLibCheck": true,                     /* Skip type checking of declaration files.  */
     "sourceMap": true,                        /* Generates corresponding '.map' file. */
@@ -35,5 +36,7 @@
   "include": [
     "@types",
     "src/**/*",
+    "ChatAppExample/server/bootstrap.tsx",
+    "ChatAppExample/client/bootstrap.tsx"
   ]
 }

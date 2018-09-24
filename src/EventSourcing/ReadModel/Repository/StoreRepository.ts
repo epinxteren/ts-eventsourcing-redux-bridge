@@ -5,34 +5,34 @@ import { Identity, Repository } from 'ts-eventsourcing';
 import { StateReadModel } from '../Model/StateReadModel';
 import { SerializableAction } from '../../../Redux/SerializableAction';
 
-export class StoreRepository<S, A extends SerializableAction> implements StoreRepositoryInterface<S, A> {
+export class StoreRepository<State, Id extends Identity, Action extends SerializableAction> implements StoreRepositoryInterface<State, Id, Action> {
 
-  constructor(private readonly stateRepository: Repository<StateReadModel<S>>, private readonly storeFactory: StoreFactory<S, A>) {
+  constructor(private readonly stateRepository: Repository<StateReadModel<State, Id>>, private readonly storeFactory: StoreFactory<State, Action>) {
 
   }
 
-  public async create(id: Identity): Promise<StoreReadModel<S, A>> {
-    return new StoreReadModel(id, this.storeFactory.create(), 0);
+  public async create(id: Id): Promise<StoreReadModel<State, Id, Action>> {
+    return new StoreReadModel<State, Id, Action>(id, this.storeFactory.create(), 0);
   }
 
-  public save(model: StoreReadModel<S, A>): Promise<void> {
-    return this.stateRepository.save(new StateReadModel<S>(
+  public save(model: StoreReadModel<State, Id, Action>): Promise<void> {
+    return this.stateRepository.save(new StateReadModel<State, Id>(
       model.getId(),
       model.getStore().getState(),
-      model.getPlayhead()
+      model.getPlayhead(),
     ));
   }
 
-  public has(id: Identity): Promise<boolean> {
+  public has(id: Id): Promise<boolean> {
     return this.stateRepository.has(id);
   }
 
-  public async get(id: Identity): Promise<StoreReadModel<S, A>> {
+  public async get(id: Id): Promise<StoreReadModel<State, Id, Action>> {
     const data = await this.stateRepository.get(id);
     return this.createStore(data, id);
   }
 
-  public async find(id: Identity): Promise<null | StoreReadModel<S, A>> {
+  public async find(id: Id): Promise<null | StoreReadModel<State, Id, Action>> {
     const data = await this.stateRepository.find(id);
     if (data === null) {
       return null;
@@ -44,7 +44,7 @@ export class StoreRepository<S, A extends SerializableAction> implements StoreRe
     return this.stateRepository.remove(id);
   }
 
-  private createStore(data: StateReadModel<S>, id: Identity) {
+  private createStore(data: StateReadModel<State, Id>, id: Id) {
     const store = this.storeFactory.createFromState(data.getState() as any);
     return new StoreReadModel(id, store, data.getPlayhead());
   }

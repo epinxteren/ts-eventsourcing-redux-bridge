@@ -1,12 +1,12 @@
 import { StoreReadModel } from './ReadModel/Model/StoreReadModel';
 import { StoreRepositoryInterface } from './ReadModel/StoreRepositoryInterface';
-import { ClassUtil, DomainMessage } from 'ts-eventsourcing';
+import { ClassUtil, DomainEvent, DomainMessage, Identity } from 'ts-eventsourcing';
 import { ServerGatewayInterface } from '../Gateway';
 import { SerializableAction } from '../Redux/SerializableAction';
 import { DomainEventAction } from '../Redux/DomainEventAction';
 import { DomainEventMetadata } from '../Redux/DomainEventMetadata';
 import { typeWithEntity } from '../Redux/EntityMetadata';
-import { Entity } from '../Value/Entity';
+import { EntityName } from '../ValueObject';
 
 /**
  * For passing events between the projector and redux store.
@@ -15,14 +15,18 @@ import { Entity } from '../Value/Entity';
  * 2. Save the new State to read model repository.
  * 3. Transmit the action by the gateway.
  */
-export class ProjectorGateway<S, A extends SerializableAction> {
+export class ProjectorGateway<State, Id extends Identity, Action extends SerializableAction = SerializableAction> {
 
-  protected constructor(protected readonly repository: StoreRepositoryInterface<S, A>,
-                        protected readonly gateway: ServerGatewayInterface,
-                        protected readonly entityName: Entity) {
+  constructor(protected readonly repository: StoreRepositoryInterface<State, Id, Action>,
+              protected readonly gateway: ServerGatewayInterface,
+              protected readonly entityName: EntityName) {
   }
 
-  public createDomainEventMetadata(model: StoreReadModel<S, A>, message: DomainMessage, metadata: { entity?: string, [extraProps: string]: any } = {}): DomainEventMetadata {
+  public createDomainEventMetadata(
+    model: StoreReadModel<State, Id, Action>,
+    message: DomainMessage<DomainEvent, Id>,
+    metadata: { entity?: string, [extraProps: string]: any } = {},
+  ): DomainEventMetadata<Id> {
     return {
       entity: this.entityName,
       ...metadata,
@@ -35,20 +39,26 @@ export class ProjectorGateway<S, A extends SerializableAction> {
   /**
    * For direct passing a domain message as a redux action.
    */
-  public async dispatchAndSaveMessage(model: StoreReadModel<S, A>, message: DomainMessage, metadata: { entity?: string, [extraProps: string]: any } = {}) {
+  public async dispatchAndSaveMessage(
+    model: StoreReadModel<State, Id, Action>,
+    message: DomainMessage<DomainEvent, Id>,
+    metadata: { entity?: string, [extraProps: string]: any } = {},
+  ) {
     const domainEventMetadata = this.createDomainEventMetadata(model, message, metadata);
-    const action: DomainEventAction<any, DomainEventMetadata> = {
+    const action: DomainEventAction<DomainEvent, Id, DomainEventMetadata<Id>> = {
       type: typeWithEntity(domainEventMetadata.entity, ClassUtil.nameOffInstance(message.payload)),
       event: message.payload,
       metadata: domainEventMetadata,
     };
-    /* TODO: why is action not compatible? */
     return this.dispatchActionAndSave(model, action as any);
   }
 
-  protected async dispatchActionAndSave(model: StoreReadModel<S, A>, action: A) {
+  protected async dispatchActionAndSave(
+    model: StoreReadModel<State, Id, Action>,
+    action: Action,
+  ) {
     model.getStore().dispatch(action);
-    await this.repository.save(new StoreReadModel<S, A>(model.getId(), model.getStore(), action.metadata.playhead));
+    await this.repository.save(new StoreReadModel(model.getId(), model.getStore(), action.metadata.playhead));
     await this.gateway.emit(action);
   }
 

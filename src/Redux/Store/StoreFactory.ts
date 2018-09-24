@@ -1,10 +1,10 @@
-import {DeepPartial, Store} from "redux";
-import {SerializableAction} from "../SerializableAction";
+import { DeepPartial, Store, StoreEnhancer } from 'redux';
+import { SerializableAction } from '../SerializableAction';
 
-export interface StoreFactory<S, A extends SerializableAction> {
+export interface StoreFactory<S, A extends SerializableAction = SerializableAction> {
 
-  create(): Store<S, A>;
+  create(enhancer?: StoreEnhancer): Store<S, A>;
 
-  createFromState(state: DeepPartial<S>): Store<S, A>;
+  createFromState(state: DeepPartial<S>, enhancer?: StoreEnhancer): Store<S, A>;
 
 }
