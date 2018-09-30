@@ -22,14 +22,17 @@ export class ProjectorGateway<State, Id extends Identity, Action extends Seriali
               protected readonly entityName: EntityName) {
   }
 
+  /**
+   * Convenience function to create domain event metadata.
+   */
   public createDomainEventMetadata(
     model: StoreReadModel<State, Id, Action>,
     message: DomainMessage<DomainEvent, Id>,
-    metadata: { entity?: string, [extraProps: string]: any } = {},
-  ): DomainEventMetadata<Id> {
+    additionalMetadata: { entity?: string, [extraProps: string]: any } = {},
+  ): DomainEventMetadata<Id> & typeof additionalMetadata {
     return {
       entity: this.entityName,
-      ...metadata,
+      ...additionalMetadata,
       playhead: model.getPlayhead() + 1,
       aggregateId: model.getId(),
       recordedOn: message.recordedOn,
@@ -42,15 +45,16 @@ export class ProjectorGateway<State, Id extends Identity, Action extends Seriali
   public async dispatchAndSaveMessage(
     model: StoreReadModel<State, Id, Action>,
     message: DomainMessage<DomainEvent, Id>,
-    metadata: { entity?: string, [extraProps: string]: any } = {},
+    additionalMetadata: { entity?: string, [extraProps: string]: any } = {},
   ) {
-    const domainEventMetadata = this.createDomainEventMetadata(model, message, metadata);
-    const action: DomainEventAction<DomainEvent, Id, DomainEventMetadata<Id>> = {
+    const domainEventMetadata = this.createDomainEventMetadata(model, message, additionalMetadata);
+    const action: DomainEventAction<DomainEvent, Id, typeof domainEventMetadata> = {
       type: typeWithEntity(domainEventMetadata.entity, ClassUtil.nameOffInstance(message.payload)),
       event: message.payload,
       metadata: domainEventMetadata,
     };
-    return this.dispatchActionAndSave(model, action as any);
+    await this.dispatchActionAndSave(model, action as any);
+    return action;
   }
 
   protected async dispatchActionAndSave(
@@ -58,7 +62,7 @@ export class ProjectorGateway<State, Id extends Identity, Action extends Seriali
     action: Action,
   ) {
     model.getStore().dispatch(action);
-    await this.repository.save(new StoreReadModel(model.getId(), model.getStore(), action.metadata.playhead));
+    await this.repository.save(model.withIncreasedPlayhead());
     await this.gateway.emit(action);
   }
 

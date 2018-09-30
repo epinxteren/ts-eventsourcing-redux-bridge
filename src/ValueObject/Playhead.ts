@@ -1,5 +1,6 @@
 
 /**
- * Incremental number of all events that have passed. This will know if we are missing any events.
+ * Incremental number of all events that have passed. This will let us know if we are missing any events if the order is
+ * incorrect.
  */
 export type Playhead = number;

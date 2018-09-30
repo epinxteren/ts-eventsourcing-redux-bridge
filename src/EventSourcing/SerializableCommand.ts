@@ -1,5 +1,8 @@
 import { Command } from 'ts-eventsourcing';
 
+/**
+ * Marker class that a command is serializable.
+ */
 export abstract class SerializableCommand implements Command {
 
   /**

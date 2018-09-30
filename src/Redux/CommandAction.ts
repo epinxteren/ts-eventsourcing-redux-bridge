@@ -8,8 +8,9 @@ export interface CommandAction<T extends SerializableCommand = SerializableComma
 }
 
 export function isCommandAction(action: any): action is CommandAction {
-  return action && typeof action === 'object' &&
-    action.command instanceof SerializableCommand &&
+  return action &&
+    typeof action === 'object' &&
+    SerializableCommand.isSerializableCommand(action.command) &&
     typeof action.metadata === 'object' &&
     typeof action.type === 'string';
 }

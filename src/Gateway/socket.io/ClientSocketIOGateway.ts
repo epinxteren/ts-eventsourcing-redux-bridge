@@ -1,32 +1,35 @@
-import { ClientGatewayInterface } from '../ClientGatewayInterface';
-import { Observable } from 'rxjs';
+import { ClientGatewayInterface } from '..';
+import { Observable, Subject } from 'rxjs';
 import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
 import { isSerializableAction, SerializableAction } from '../../Redux/SerializableAction';
 import { SerializerInterface } from '../../Serializer';
-import { DeserializationError, MalformedSerializableActionError, SerializationError } from '../Error';
+import {
+  DeserializationError,
+  MalformedSerializableActionError,
+  MalformedSerializableCommandError,
+  SerializationError
+} from '../Error';
+import { share } from 'rxjs/operators';
 
 export class ClientSocketIOGateway implements ClientGatewayInterface {
 
-  constructor(private socket: SocketIOClient.Socket,
+  private readonly warningsSubject = new Subject<Error>();
+  private readonly observable: Observable<SerializableAction>;
+
+  constructor(private socket: SocketIOClient.Emitter,
               private serializer: SerializerInterface) {
 
-  }
-
-  /**
-   *
-   */
-  public listen(): Observable<SerializableAction> {
-    return new Observable((subscriber) => {
+    const actions$ = new Observable<SerializableAction>((subscriber) => {
       const messageListener = (json: string) => {
         let action;
         try {
           action = this.serializer.deserialize(json);
         } catch (e) {
-          subscriber.error(DeserializationError.eventCouldNotBeDeSerialized(json, e));
+          this.warningsSubject.next(DeserializationError.eventCouldNotBeDeSerialized(json, e));
           return;
         }
         if (!isSerializableAction(action)) {
-          subscriber.error(MalformedSerializableActionError.notASerializableAction(action));
+          this.warningsSubject.next(MalformedSerializableActionError.notASerializableAction(action));
           return;
         }
         subscriber.next(action);
@@ -36,16 +39,28 @@ export class ClientSocketIOGateway implements ClientGatewayInterface {
         this.socket.removeEventListener('action', messageListener);
       };
     });
+    this.observable = actions$.pipe(share());
+  }
+
+  public listen(): Observable<SerializableAction> {
+    return this.observable;
   }
 
   public async emit(command: SerializableCommand): Promise<void> {
     let serialized;
+    if (!SerializableCommand.isSerializableCommand(command)) {
+      throw MalformedSerializableCommandError.notASerializableCommand(command);
+    }
     try {
       serialized = this.serializer.serialize(command);
     } catch (e) {
-      return Promise.reject(SerializationError.commandCouldNotBeSerialized(command, e));
+      throw SerializationError.commandCouldNotBeSerialized(command, e);
     }
     this.socket.emit('command', serialized);
+  }
+
+  public warnings(): Observable<Error> {
+    return this.warningsSubject;
   }
 
 }

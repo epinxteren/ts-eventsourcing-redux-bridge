@@ -1,12 +1,14 @@
 module.exports = {
-    collectCoverage: true,
+    collectCoverage: false,
+    testEnvironment: 'node',
     testURL: 'http://localhost',
     coverageDirectory: "coverage",
     collectCoverageFrom: [
         "src/**/*.{ts}",
         "!**/*test.{ts}",
         "!**/*.d.{ts}",
-        "!**/build"
+        "!**/build",
+        "!**/index.ts"
     ],
     coverageThreshold: {
         "global": {

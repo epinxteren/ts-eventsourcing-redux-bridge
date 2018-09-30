@@ -1,9 +1,9 @@
 import { Identity, ReadModel } from 'ts-eventsourcing';
 import { SerializableAction } from '../../../Redux/SerializableAction';
 import { Store } from 'redux';
-import { Playhead } from '../../../ValueObject/Playhead';
+import { Playhead } from '../../../ValueObject';
 
-export class StoreReadModel<State, Id extends Identity, Action extends SerializableAction> implements ReadModel {
+export class StoreReadModel<State, Id extends Identity = Identity, Action extends SerializableAction = SerializableAction> implements ReadModel {
 
   constructor(private readonly id: Id,
               private readonly store: Store<State, Action>,
@@ -21,5 +21,9 @@ export class StoreReadModel<State, Id extends Identity, Action extends Serializa
 
   public getPlayhead(): Playhead {
     return this.playhead;
+  }
+
+  public withIncreasedPlayhead(): StoreReadModel<State, Id, Action> {
+    return new StoreReadModel(this.id, this.store, this.playhead + 1);
   }
 }

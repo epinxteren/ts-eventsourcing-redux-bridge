@@ -27,8 +27,8 @@ export class SerializableStateRepository<State, Id extends Identity> implements 
   }
 
   public async get(id: Id): Promise<StateReadModel<State, Id>> {
-    const data = await this.stateRepository.get(id);
-    return this.deSerialize(data, id);
+    const model = await this.stateRepository.get(id);
+    return this.deSerialize(model, id);
   }
 
   public async find(id: Id): Promise<null | StateReadModel<State, Id>> {

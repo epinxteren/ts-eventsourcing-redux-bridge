@@ -5,4 +5,5 @@ import { SerializableAction } from '../Redux/SerializableAction';
 export interface ClientGatewayInterface {
   emit(command: SerializableCommand): Promise<void>;
   listen(): Observable<SerializableAction>;
+  warnings(): Observable<Error>;
 }

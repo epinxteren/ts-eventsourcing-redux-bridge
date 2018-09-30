@@ -7,9 +7,10 @@ export interface EntityMetadata {
 }
 
 export function hasEntityMetadata(action: any): action is AnyAction & { metadata: EntityMetadata } {
-  return typeof action !== 'object' &&
+  return typeof action === 'object' &&
     typeof action.metadata === 'object' &&
-    typeof action.entity === 'string';
+    action.metadata &&
+    typeof action.metadata.entity === 'string';
 }
 
 export function typeWithEntity(entity: string, type: string) {

@@ -1,7 +1,7 @@
 import { Identity, ReadModel } from 'ts-eventsourcing';
-import { Playhead } from '../../../ValueObject/Playhead';
+import { Playhead } from '../../../ValueObject';
 
-export class StateReadModel<State, Id extends Identity> implements ReadModel {
+export class StateReadModel<State, Id extends Identity = Identity> implements ReadModel<Id> {
 
   constructor(private readonly id: Id,
               private readonly state: State,
