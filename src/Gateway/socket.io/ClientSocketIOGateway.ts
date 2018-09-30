@@ -7,7 +7,7 @@ import {
   DeserializationError,
   MalformedSerializableActionError,
   MalformedSerializableCommandError,
-  SerializationError
+  SerializationError,
 } from '../Error';
 import { share } from 'rxjs/operators';
 

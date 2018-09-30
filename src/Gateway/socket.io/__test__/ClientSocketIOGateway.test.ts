@@ -5,7 +5,7 @@ import {
   DeserializationError,
   MalformedSerializableActionError,
   MalformedSerializableCommandError,
-  SerializationError
+  SerializationError,
 } from '../../Error';
 import { SerializableCommand } from '../../../EventSourcing/SerializableCommand';
 

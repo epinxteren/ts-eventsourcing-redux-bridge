@@ -1,7 +1,7 @@
 import 'jest';
 import { TransitJSSerializer } from '../TransitJSSerializer';
 import { Record } from 'immutable';
-import {createClassHandlers} from "../createClassHandlers";
+import { createClassHandlers } from '../createClassHandlers';
 
 class TestClass {
   public t = 2;
@@ -14,9 +14,9 @@ class TestClass {
   }
 }
 
-class TestClass2 extends TestClass {
-
-}
+// class TestClass2 extends TestClass {
+//
+// }
 
 describe('Serializer', () => {
 
@@ -60,19 +60,19 @@ describe('Serializer', () => {
   });
 
   // TODO: fixme, cannot serialize extended classes.
-  it.skip('Can serialize a different classes', () => {
-    const test = new TestClass('d');
-    const test2 = new TestClass2('e');
-    const date = new Date();
-    date.setTime(1518770045540);
-    test.date = date;
-    const serializer = new TransitJSSerializer([], createClassHandlers({ TestClass2, TestClass }));
-    const serialized = serializer.serialize([test, test2]);
-    expect(serialized).toMatchSnapshot();
-    const deSerialized = serializer.deserialize(serialized) as any;
-    expect(deSerialized).toEqual([test, test2]);
-    expect(deSerialized[0]).toBeInstanceOf(TestClass);
-    expect(deSerialized[1]).toBeInstanceOf(TestClass2);
-  });
+  // it.skip('Can serialize a different classes', () => {
+  //   const test = new TestClass('d');
+  //   const test2 = new TestClass2('e');
+  //   const date = new Date();
+  //   date.setTime(1518770045540);
+  //   test.date = date;
+  //   const serializer = new TransitJSSerializer([], createClassHandlers({ TestClass2, TestClass }));
+  //   const serialized = serializer.serialize([test, test2]);
+  //   expect(serialized).toMatchSnapshot();
+  //   const deSerialized = serializer.deserialize(serialized) as any;
+  //   expect(deSerialized).toEqual([test, test2]);
+  //   expect(deSerialized[0]).toBeInstanceOf(TestClass);
+  //   expect(deSerialized[1]).toBeInstanceOf(TestClass2);
+  // });
 
 });

@@ -35,8 +35,6 @@
   },
   "include": [
     "@types",
-    "src/**/*",
-    "ChatAppExample/server/bootstrap.tsx",
-    "ChatAppExample/client/bootstrap.tsx"
+    "src/**/*"
   ]
 }

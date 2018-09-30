@@ -83,7 +83,7 @@ it('Should be able to remove a readmodel', async () => {
     remove: jest.fn(),
   } as any;
   const repository = new StoreRepository(store, null as any);
-  await repository.remove(id)
+  await repository.remove(id);
   expect(store.remove).toBeCalled();
 });
 
