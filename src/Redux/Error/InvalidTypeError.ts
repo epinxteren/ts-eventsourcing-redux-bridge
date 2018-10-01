@@ -1,6 +1,8 @@
 import { AnyAction } from 'redux';
-import { ClassUtil, DomainEvent, DomainEventConstructor, Identity, IdentityConstructor } from 'ts-eventsourcing';
 import { SerializableAction } from '../SerializableAction';
+import { DomainEvent, DomainEventConstructor } from 'ts-eventsourcing/Domain/DomainEvent';
+import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
+import { Identity, IdentityConstructor } from 'ts-eventsourcing/ValueObject/Identity';
 
 export class InvalidTypeError extends Error {
 

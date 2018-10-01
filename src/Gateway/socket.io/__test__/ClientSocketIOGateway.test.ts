@@ -1,13 +1,11 @@
 import { ClientSocketIOGateway } from '../ClientSocketIOGateway';
-import { SerializerInterface } from '../../../Serializer';
 import { SerializableAction } from '../../../Redux/SerializableAction';
-import {
-  DeserializationError,
-  MalformedSerializableActionError,
-  MalformedSerializableCommandError,
-  SerializationError,
-} from '../../Error';
 import { SerializableCommand } from '../../../EventSourcing/SerializableCommand';
+import { SerializerInterface } from '../../../Serializer/SerializerInterface';
+import { MalformedSerializableActionError } from '../../Error/MalformedSerializableActionError';
+import { SerializationError } from '../../Error/SerializationError';
+import { DeserializationError } from '../../Error/DeserializationError';
+import { MalformedSerializableCommandError } from '../../Error/MalformedSerializableCommandError';
 
 class DoSomethingCommand extends SerializableCommand {
 

@@ -1,14 +1,13 @@
-import { ClientGatewayInterface } from '..';
 import { Observable, Subject } from 'rxjs';
 import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
 import { isSerializableAction, SerializableAction } from '../../Redux/SerializableAction';
-import { SerializerInterface } from '../../Serializer';
-import {
-  DeserializationError,
-  MalformedSerializableActionError,
-  MalformedSerializableCommandError,
-  SerializationError,
-} from '../Error';
+
+import { SerializerInterface } from '../../Serializer/SerializerInterface';
+import { MalformedSerializableActionError } from '../Error/MalformedSerializableActionError';
+import { SerializationError } from '../Error/SerializationError';
+import { DeserializationError } from '../Error/DeserializationError';
+import { ClientGatewayInterface } from '../ClientGatewayInterface';
+import { MalformedSerializableCommandError } from '../Error/MalformedSerializableCommandError';
 import { share } from 'rxjs/operators';
 
 export class ClientSocketIOGateway implements ClientGatewayInterface {

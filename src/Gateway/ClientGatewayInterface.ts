@@ -1,6 +1,7 @@
-import { SerializableCommand } from '../EventSourcing';
+
+import { SerializableCommand } from '../EventSourcing/SerializableCommand';
+import { SerializableAction } from '../Redux/SerializableAction';
 import { Observable } from 'rxjs';
-import { SerializableAction } from '../Redux';
 
 export interface ClientGatewayInterface {
   emit(command: SerializableCommand): Promise<void>;

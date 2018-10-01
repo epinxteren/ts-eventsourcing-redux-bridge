@@ -1,7 +1,8 @@
 import { SerializableAction } from './SerializableAction';
-import { DomainEvent, DomainEventConstructor, Identity, IdentityConstructor } from 'ts-eventsourcing';
 import { DomainEventMetadata } from './DomainEventMetadata';
 import { InvalidTypeError } from './Error/InvalidTypeError';
+import { DomainEvent, DomainEventConstructor } from 'ts-eventsourcing/Domain/DomainEvent';
+import { Identity, IdentityConstructor } from 'ts-eventsourcing/ValueObject/Identity';
 
 export interface DomainEventAction<Event extends DomainEvent,
   Id extends Identity = Identity,

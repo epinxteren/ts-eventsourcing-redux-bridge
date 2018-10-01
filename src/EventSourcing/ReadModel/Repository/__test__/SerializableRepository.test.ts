@@ -1,9 +1,11 @@
 import 'jest';
 import { SerializableStateRepository, SerializedStateData } from '../SerializableStateRepository';
-import { SerializerInterface } from '../../../../Serializer';
-import { BlobReadModel, InMemoryRepository, Repository } from 'ts-eventsourcing';
-import { ScalarIdentity } from 'ts-eventsourcing/build/ValueObject/ScalarIdentity';
 import { StateReadModel } from '../../Model/StateReadModel';
+import { SerializerInterface } from '../../../../Serializer/SerializerInterface';
+import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
+import { BlobReadModel } from 'ts-eventsourcing/ReadModel/BlobReadModel';
+import { InMemoryRepository } from 'ts-eventsourcing/ReadModel/InMemoryRepository';
+import { ScalarIdentity } from 'ts-eventsourcing/ValueObject/ScalarIdentity';
 
 it('Should be able to save a model', async () => {
   const serializer: SerializerInterface = {

@@ -1,7 +1,8 @@
-import { Identity, ReadModel } from 'ts-eventsourcing';
 import { SerializableAction } from '../../../Redux/SerializableAction';
 import { Store } from 'redux';
-import { Playhead } from '../../../ValueObject';
+import { ReadModel } from 'ts-eventsourcing/ReadModel/ReadModel';
+import { Playhead } from '../../../ValueObject/Playhead';
+import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
 
 export class StoreReadModel<State, Id extends Identity = Identity, Action extends SerializableAction = SerializableAction> implements ReadModel {
 

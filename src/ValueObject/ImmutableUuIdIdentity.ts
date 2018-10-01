@@ -1,5 +1,5 @@
-import { UuidIdentity } from 'ts-eventsourcing/build/ValueObject/UuidIdentity';
 import { ValueObject, hash } from 'immutable';
+import { UuidIdentity } from 'ts-eventsourcing/ValueObject/UuidIdentity';
 
 /**
  * This can also be used as keys for has tables.

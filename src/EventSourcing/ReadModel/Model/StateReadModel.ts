@@ -1,5 +1,6 @@
-import { Identity, ReadModel } from 'ts-eventsourcing';
-import { Playhead } from '../../../ValueObject';
+import { ReadModel } from 'ts-eventsourcing/ReadModel/ReadModel';
+import { Playhead } from '../../../ValueObject/Playhead';
+import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
 
 export class StateReadModel<State, Id extends Identity = Identity> implements ReadModel<Id> {
 

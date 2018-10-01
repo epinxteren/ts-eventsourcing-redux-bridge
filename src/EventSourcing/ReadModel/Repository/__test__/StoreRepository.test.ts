@@ -2,9 +2,9 @@ import 'jest';
 import { StoreRepository } from '../StoreRepository';
 import { StateReadModel } from '../../Model/StateReadModel';
 import { StoreFactory } from '../../../../Redux/Store/StoreFactory';
-import { Repository } from 'ts-eventsourcing';
-import { ScalarIdentity } from 'ts-eventsourcing/build/ValueObject/ScalarIdentity';
 import { StoreReadModel } from '../../Model/StoreReadModel';
+import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
+import { ScalarIdentity } from 'ts-eventsourcing/ValueObject/ScalarIdentity';
 
 it('Should be able to save a model', async () => {
   const store: Repository<StateReadModel<string>> = {

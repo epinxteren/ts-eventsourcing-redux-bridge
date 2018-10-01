@@ -1,6 +1,6 @@
 import { EntityMetadata } from './EntityMetadata';
-import { Identity } from 'ts-eventsourcing';
-import { Playhead } from '../ValueObject';
+import { Playhead } from '../ValueObject/Playhead';
+import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
 
 export interface DomainEventMetadata<Id extends Identity = Identity> extends EntityMetadata {
   aggregateId: Id;

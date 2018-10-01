@@ -1,10 +1,11 @@
 import { ProjectorGateway } from '../ProjectorGateway';
-import { ScalarIdentity } from 'ts-eventsourcing/build/ValueObject/ScalarIdentity';
 import { StoreReadModel } from '../ReadModel/Model/StoreReadModel';
-import { DomainEvent, DomainMessage } from 'ts-eventsourcing';
 import { SerializableAction } from '../../Redux/SerializableAction';
 import { StoreRepositoryInterface } from '../ReadModel/StoreRepositoryInterface';
-import { ServerGatewayInterface } from '../../Gateway';
+import { ScalarIdentity } from 'ts-eventsourcing/ValueObject/ScalarIdentity';
+import { DomainEvent } from 'ts-eventsourcing/Domain/DomainEvent';
+import { ServerGatewayInterface } from '../../Gateway/ServerGatewayInterface';
+import { DomainMessage } from 'ts-eventsourcing/Domain/DomainMessage';
 
 describe('createDomainEventMetadata', () => {
   it('Can create createDomainEventMetadata', () => {

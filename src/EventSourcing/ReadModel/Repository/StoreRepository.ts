@@ -1,9 +1,10 @@
 import { StoreReadModel } from '../Model/StoreReadModel';
 import { StoreRepositoryInterface } from '../StoreRepositoryInterface';
 import { StoreFactory } from '../../../Redux/Store/StoreFactory';
-import { Identity, Repository } from 'ts-eventsourcing';
 import { StateReadModel } from '../Model/StateReadModel';
 import { SerializableAction } from '../../../Redux/SerializableAction';
+import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
+import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
 
 export class StoreRepository<State, Id extends Identity, Action extends SerializableAction> implements StoreRepositoryInterface<State, Id, Action> {
 

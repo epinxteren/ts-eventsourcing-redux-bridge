@@ -1,13 +1,12 @@
 import { commandMiddleware } from '../commandMiddleware';
-import { ClientGatewayInterface } from '../../../Gateway';
 import { MiddlewareAPI } from 'redux';
-import { commandTransmissionFailed, commandTransmittedSuccessfully, sendCommand } from '../../Action';
-import { SerializableCommand } from '../../../EventSourcing';
+import { commandTransmissionFailed, commandTransmittedSuccessfully, sendCommand } from '../../Action/commandActions';
+import { SerializableCommand } from '../../../EventSourcing/SerializableCommand';
+import { ClientGatewayInterface } from '../../../Gateway/ClientGatewayInterface';
 
 class TestCommand extends SerializableCommand {
 
 }
-
 
 it('Should ignore none command actions', () => {
 

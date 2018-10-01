@@ -1,7 +1,9 @@
 import { StateReadModel } from '../Model/StateReadModel';
-import { BlobReadModel, Identity, Repository } from 'ts-eventsourcing';
-import { SerializerInterface } from '../../../Serializer';
-import { Playhead } from '../../../ValueObject';
+import { SerializerInterface } from '../../../Serializer/SerializerInterface';
+import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
+import { BlobReadModel } from 'ts-eventsourcing/ReadModel/BlobReadModel';
+import { Playhead } from '../../../ValueObject/Playhead';
+import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
 
 export interface SerializedStateData {
   playhead: Playhead;

@@ -1,5 +1,5 @@
 import { ValueObject, hash } from 'immutable';
-import { ScalarIdentity } from 'ts-eventsourcing/build/ValueObject/ScalarIdentity';
+import { ScalarIdentity } from 'ts-eventsourcing/ValueObject/ScalarIdentity';
 
 /**
  * This can also be used as keys for has tables.

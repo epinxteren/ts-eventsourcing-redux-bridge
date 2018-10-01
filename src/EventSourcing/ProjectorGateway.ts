@@ -1,12 +1,15 @@
 import { StoreReadModel } from './ReadModel/Model/StoreReadModel';
 import { StoreRepositoryInterface } from './ReadModel/StoreRepositoryInterface';
-import { ClassUtil, DomainEvent, DomainMessage, Identity } from 'ts-eventsourcing';
-import { ServerGatewayInterface } from '../Gateway';
 import { SerializableAction } from '../Redux/SerializableAction';
 import { DomainEventAction } from '../Redux/DomainEventAction';
 import { DomainEventMetadata } from '../Redux/DomainEventMetadata';
 import { typeWithEntity } from '../Redux/EntityMetadata';
-import { EntityName } from '../ValueObject';
+import { EntityName } from '../ValueObject/EntityName';
+import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
+import { DomainEvent } from 'ts-eventsourcing/Domain/DomainEvent';
+import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
+import { ServerGatewayInterface } from '../Gateway/ServerGatewayInterface';
+import { DomainMessage } from 'ts-eventsourcing/Domain/DomainMessage';
 
 /**
  * For passing events between the projector and redux store.

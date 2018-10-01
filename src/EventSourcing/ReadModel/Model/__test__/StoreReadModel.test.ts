@@ -1,7 +1,7 @@
-import { ScalarIdentity } from 'ts-eventsourcing/build/ValueObject/ScalarIdentity';
 import { StoreReadModel } from '../StoreReadModel';
 import { Store } from 'redux';
 import { SerializableAction } from '../../../../Redux/SerializableAction';
+import { ScalarIdentity } from 'ts-eventsourcing/ValueObject/ScalarIdentity';
 
 it('Can create a StoreReadModel', () => {
 
