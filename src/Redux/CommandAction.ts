@@ -1,5 +1,6 @@
-import { EntityMetadata } from './EntityMetadata';
+import { EntityMetadata, hasEntityMetadata } from './EntityMetadata';
 import { SerializableCommand } from '../EventSourcing/SerializableCommand';
+import { COMMAND_TRANSMITTING } from './Action/commandActions';
 
 export interface CommandAction<T extends SerializableCommand = SerializableCommand, Metadata = {}> {
   type: string;
@@ -9,8 +10,7 @@ export interface CommandAction<T extends SerializableCommand = SerializableComma
 
 export function isCommandAction(action: any): action is CommandAction {
   return action &&
-    typeof action === 'object' &&
-    SerializableCommand.isSerializableCommand(action.command) &&
-    typeof action.metadata === 'object' &&
-    typeof action.type === 'string';
+    hasEntityMetadata(action) &&
+    COMMAND_TRANSMITTING(action.metadata.entity) === action.type &&
+    SerializableCommand.isSerializableCommand(action.command);
 }

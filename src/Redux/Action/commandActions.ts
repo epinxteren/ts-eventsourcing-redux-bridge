@@ -7,7 +7,7 @@ import { typeWithEntityFactory } from '../EntityMetadata';
  *
  * The action will be picked up by the middleware {@see commandMiddleware}
  */
-export const COMMAND_TRANSMITTING = typeWithEntityFactory('command transmitted');
+export const COMMAND_TRANSMITTING = typeWithEntityFactory('command transmitting');
 
 /**
  * The command is transmitted successfully.
