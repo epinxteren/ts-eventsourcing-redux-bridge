@@ -1,9 +1,9 @@
-import { SerializableCommand } from '../EventSourcing/SerializableCommand';
 import { Observable } from 'rxjs';
 import { SerializableAction } from '../Redux/SerializableAction';
+import { ServerGatewayMessage } from './ValueObject/ServerGatewayMessage';
 
-export interface ServerGatewayInterface {
+export interface ServerGatewayInterface<Metadata = {}> {
   emit(command: SerializableAction): Promise<void>;
-  listen(): Observable<SerializableCommand>;
+  listen(): Observable<ServerGatewayMessage<Metadata>>;
   warnings(): Observable<Error>;
 }

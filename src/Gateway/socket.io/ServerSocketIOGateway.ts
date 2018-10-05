@@ -1,34 +1,37 @@
 import { ServerGatewayInterface } from '../ServerGatewayInterface';
 import { Socket } from 'socket.io';
-import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
 import { EMPTY, fromEvent, Observable, Subject } from 'rxjs';
-import { catchError, finalize, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, finalize, share, switchMap, takeUntil } from 'rxjs/operators';
 import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { SerializableAction } from '../../Redux/SerializableAction';
-import { deserializeCommand } from '../rxjs/operators/deserializeCommand';
+import { ServerGatewayMessage } from '../ValueObject/ServerGatewayMessage';
+import { NodeJSEventEmitterGateway } from '../node.js/NodeJSEventEmitterGateway';
 
-export class ServerSocketIOGateway implements ServerGatewayInterface {
+export interface ServerSocketIOGatewayMetadata {
+  client: Socket;
+  clientGateway: ServerGatewayInterface;
+}
 
-  private warnings$: Subject<Error> = new Subject();
-  private connections$: Observable<Socket>;
+export class ServerSocketIOGateway implements ServerGatewayInterface<ServerSocketIOGatewayMetadata> {
 
-  constructor(private emitter: NodeJS.EventEmitter, private serializer: SerializerInterface) {
-    this.connections$ = fromEvent<Socket>(emitter, 'connection');
-  }
+  private readonly warnings$: Subject<Error> = new Subject();
+  private readonly message$: Observable<ServerGatewayMessage<ServerSocketIOGatewayMetadata>>;
+  private readonly broadcastGateway: NodeJSEventEmitterGateway;
 
-  public async emit(command: SerializableAction): Promise<void> {
-    const serialized = this.serializer.serialize(command);
-    this.emitter.emit('command', serialized);
-  }
-
-  public listen(): Observable<SerializableCommand> {
-    return this.connections$.pipe(
+  constructor(emitter: NodeJS.EventEmitter, serializer: SerializerInterface) {
+    const connections$ = fromEvent<Socket>(emitter, 'connection');
+    this.message$ = connections$.pipe(
       switchMap((socket) => {
-        return fromEvent<string>(socket, 'command')
+        const metadata: ServerSocketIOGatewayMetadata = { client: socket, clientGateway: undefined } as any;
+        const clientGateway = new NodeJSEventEmitterGateway(emitter, serializer, metadata);
+        metadata.clientGateway = clientGateway;
+        const subscription = clientGateway.warnings().subscribe(this.warnings$);
+        return clientGateway
+          .listen()
           .pipe(
-            deserializeCommand(this.serializer),
             takeUntil(fromEvent(socket, 'disconnect')),
             finalize(() => {
+              subscription.unsubscribe();
               socket.disconnect();
             }),
             catchError((e) => {
@@ -37,7 +40,18 @@ export class ServerSocketIOGateway implements ServerGatewayInterface {
             }),
           );
       }),
+      // All subscriber are now also listing to previous connected sockets.
+      share(),
     );
+    this.broadcastGateway = new NodeJSEventEmitterGateway(emitter, serializer, {});
+  }
+
+  public async emit(action: SerializableAction): Promise<void> {
+    return this.broadcastGateway.emit(action);
+  }
+
+  public listen(): Observable<ServerGatewayMessage<ServerSocketIOGatewayMetadata>> {
+    return this.message$;
   }
 
   public warnings(): Observable<Error> {

@@ -1,41 +1,40 @@
-import { fromEvent, Observable, Subject } from 'rxjs';
-import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
+import { EMPTY, fromEvent, Observable } from 'rxjs';
 import { isSerializableAction, SerializableAction } from '../../Redux/SerializableAction';
 import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { MalformedSerializableActionError } from '../Error/MalformedSerializableActionError';
 import { SerializationError } from '../Error/SerializationError';
 import { ServerGatewayInterface } from '../ServerGatewayInterface';
 import { deserializeCommand } from '../rxjs/operators/deserializeCommand';
-import { catchError } from 'rxjs/operators';
-import { MalformedSerializableCommandError } from '../Error/MalformedSerializableCommandError';
+import { map } from 'rxjs/operators';
+import { ServerGatewayMessage } from '../ValueObject/ServerGatewayMessage';
 
-export class NodeJSEventEmitterGateway implements ServerGatewayInterface {
-  private readonly commands$: Observable<SerializableCommand>;
-  private readonly warningsSubject$: Subject<Error> = new Subject();
+export class NodeJSEventEmitterGateway<Metadata = {}> implements ServerGatewayInterface<Metadata> {
+  private readonly commands$: Observable<ServerGatewayMessage<Metadata>>;
 
   constructor(private emitter: NodeJS.EventEmitter,
-              private serializer: SerializerInterface) {
+              private serializer: SerializerInterface,
+              metadata: Metadata) {
 
     const serializedCommands$ = fromEvent<string>(this.emitter, 'command');
     this.commands$ = serializedCommands$
       .pipe(
         deserializeCommand(this.serializer),
-        catchError((e: Error, commands$) => {
-          if (e instanceof SerializationError || e instanceof MalformedSerializableCommandError) {
-            this.warningsSubject$.next(e);
-            return commands$;
-          }
-          throw e;
+        map((command) => {
+          return {
+            command,
+            metadata,
+          };
         }),
-      );
+      )
+    ;
   }
 
-  public listen(): Observable<SerializableCommand> {
+  public listen(): Observable<ServerGatewayMessage<Metadata>> {
     return this.commands$;
   }
 
   public warnings(): Observable<Error> {
-    return this.warningsSubject$;
+    return EMPTY;
   }
 
   public async emit(action: SerializableAction): Promise<void> {
