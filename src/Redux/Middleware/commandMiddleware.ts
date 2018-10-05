@@ -7,7 +7,7 @@ export function commandMiddleware<D extends Dispatch = Dispatch, S = any, Action
   return (api: MiddlewareAPI<D, S>) => (next: D) => (action: Action): any => {
     next(action);
     if (isCommandAction(action)) {
-      gateway.emit(action.command)
+      gateway.emit(action.command, action.metadata)
         .then(() => {
           api.dispatch(commandTransmittedSuccessfully(action.command, action.metadata.entity, action.metadata));
         })

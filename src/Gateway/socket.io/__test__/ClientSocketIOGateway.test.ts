@@ -67,9 +67,9 @@ it('Should be able to emit commands', async () => {
   };
   const gateway = new ClientSocketIOGateway(emitter, serializer);
   const command = new DoSomethingCommand();
-  await gateway.emit(command);
+  await gateway.emit(command, { entity: 'test' });
   expect(emitter.emit).toBeCalledWith('command', 'serialized');
-  expect(serializer.serialize).toBeCalledWith(command);
+  expect(serializer.serialize).toBeCalledWith({ command, metadata: { entity: 'test' } });
 });
 
 it('Should handle serialize errors', async () => {
@@ -83,8 +83,8 @@ it('Should handle serialize errors', async () => {
   };
   const gateway = new ClientSocketIOGateway(emitter, serializer);
   const command = new DoSomethingCommand();
-  await expect(gateway.emit(command)).rejects.toEqual(SerializationError.commandCouldNotBeSerialized(command, new Error('Serialize error')));
-  expect(serializer.serialize).toBeCalledWith(command);
+  await expect(gateway.emit(command, { entity: 'test' })).rejects.toEqual(SerializationError.commandCouldNotBeSerialized(command, new Error('Serialize error')));
+  expect(serializer.serialize).toBeCalledWith({ command, metadata: { entity: 'test' } });
 });
 
 it('Can only emit valid commands', async () => {
@@ -97,5 +97,5 @@ it('Can only emit valid commands', async () => {
     }),
   };
   const gateway = new ClientSocketIOGateway(emitter, serializer);
-  await expect(gateway.emit('something')).rejects.toEqual(MalformedSerializableCommandError.notASerializableCommand('something'));
+  await expect(gateway.emit('something', { entity: 'test' })).rejects.toEqual(MalformedSerializableCommandError.notASerializableCommand('something'));
 });

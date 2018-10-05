@@ -6,10 +6,10 @@ import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { SerializableAction } from '../../Redux/SerializableAction';
 import { ServerGatewayMessage } from '../ValueObject/ServerGatewayMessage';
 import { NodeJSEventEmitterGateway } from '../node.js/NodeJSEventEmitterGateway';
+import { ServerGatewayMetadata } from '../ValueObject/ServerGatewayMetadata';
 
-export interface ServerSocketIOGatewayMetadata {
+export interface ServerSocketIOGatewayMetadata extends ServerGatewayMetadata<ServerGatewayInterface<ServerSocketIOGatewayMetadata>> {
   client: Socket;
-  clientGateway: ServerGatewayInterface<ServerSocketIOGatewayMetadata>;
 }
 
 export type ServerSocketIOGatewayMessage = ServerGatewayMessage<ServerSocketIOGatewayMetadata>;
@@ -19,18 +19,18 @@ export type ServerSocketIOGatewayMessage = ServerGatewayMessage<ServerSocketIOGa
  */
 export class ServerSocketIOGateway implements ServerGatewayInterface<ServerSocketIOGatewayMetadata> {
 
-  private readonly warnings$: Subject<Error> = new Subject();
+  private readonly warnings$: Subject<ServerSocketIOGatewayMetadata & { error: Error }> = new Subject();
   private readonly message$: Observable<ServerGatewayMessage<ServerSocketIOGatewayMetadata>>;
-  private readonly broadcastGateway: NodeJSEventEmitterGateway;
+  private readonly broadcastGateway: NodeJSEventEmitterGateway<any>;
   private readonly connections$: Observable<ServerSocketIOGatewayMetadata>;
   private readonly disconnect$: Observable<ServerSocketIOGatewayMetadata>;
 
   constructor(emitter: NodeJS.EventEmitter, serializer: SerializerInterface) {
     this.connections$ = fromEvent<Socket>(emitter, 'connection')
       .pipe(
-        map((socket) => {
-          const metadata: ServerSocketIOGatewayMetadata = { client: socket, clientGateway: undefined } as any;
-          const clientGateway = new NodeJSEventEmitterGateway(emitter, serializer, metadata);
+        map((client) => {
+          const metadata: ServerSocketIOGatewayMetadata = { client, clientGateway: undefined } as any;
+          const clientGateway = new NodeJSEventEmitterGateway(client, serializer, metadata);
           metadata.clientGateway = clientGateway as any;
           return metadata as any;
         }),
@@ -57,8 +57,8 @@ export class ServerSocketIOGateway implements ServerGatewayInterface<ServerSocke
               subscription.unsubscribe();
               metadata.client.disconnect();
             }),
-            catchError((e) => {
-              this.warnings$.next(e);
+            catchError((error) => {
+              this.warnings$.next({ ...metadata, error });
               return EMPTY;
             }),
           );
@@ -66,7 +66,7 @@ export class ServerSocketIOGateway implements ServerGatewayInterface<ServerSocke
       // All subscriber are now also listing to previous connected sockets.
       share(),
     );
-    this.broadcastGateway = new NodeJSEventEmitterGateway(emitter, serializer, {});
+    this.broadcastGateway = new NodeJSEventEmitterGateway(emitter, serializer, { clientGateway: emitter });
   }
 
   public async emit(action: SerializableAction): Promise<void> {
@@ -85,7 +85,7 @@ export class ServerSocketIOGateway implements ServerGatewayInterface<ServerSocke
     return this.disconnect$;
   }
 
-  public warnings(): Observable<Error> {
+  public warnings(): Observable<ServerSocketIOGatewayMetadata & { error: Error }> {
     return this.warnings$;
   }
 

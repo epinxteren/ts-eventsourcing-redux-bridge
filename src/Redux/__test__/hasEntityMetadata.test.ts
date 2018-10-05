@@ -12,6 +12,8 @@ it('Should know when its has valid entity metadata', () => {
 
   expect(hasEntityMetadata(action)).toBeTruthy();
   expect(hasEntityMetadata('Not valid')).toBeFalsy();
+  expect(hasEntityMetadata(null)).toBeFalsy();
+  expect(hasEntityMetadata(undefined)).toBeFalsy();
   expect(hasEntityMetadata({ type: 'test' })).toBeFalsy();
   expect(hasEntityMetadata({ metadata: {} })).toBeFalsy();
   expect(hasEntityMetadata({ metadata: { test: 'string' } })).toBeFalsy();

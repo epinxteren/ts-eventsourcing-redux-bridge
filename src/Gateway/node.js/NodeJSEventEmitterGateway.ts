@@ -7,22 +7,28 @@ import { ServerGatewayInterface } from '../ServerGatewayInterface';
 import { deserializeCommand } from '../rxjs/operators/deserializeCommand';
 import { map } from 'rxjs/operators';
 import { ServerGatewayMessage } from '../ValueObject/ServerGatewayMessage';
+import { ServerGatewayMetadata } from '../ValueObject/ServerGatewayMetadata';
+import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
+import { EntityMetadata } from '../../Redux/EntityMetadata';
 
-export class NodeJSEventEmitterGateway<Metadata = {}> implements ServerGatewayInterface<Metadata> {
+export class NodeJSEventEmitterGateway<Metadata extends ServerGatewayMetadata<any> = { clientGateway: any }> implements ServerGatewayInterface<Metadata> {
   private readonly commands$: Observable<ServerGatewayMessage<Metadata>>;
 
   constructor(private emitter: NodeJS.EventEmitter,
               private serializer: SerializerInterface,
-              metadata: Metadata) {
-
+              metadata?: Metadata) {
+    const clientMetadata: any = metadata ? metadata : { clientGateway: this };
     const serializedCommands$ = fromEvent<string>(this.emitter, 'command');
     this.commands$ = serializedCommands$
       .pipe(
         deserializeCommand(this.serializer),
-        map((command) => {
+        map((message: { command: SerializableCommand, metadata: EntityMetadata }) => {
           return {
-            command,
-            metadata,
+            command: message.command,
+            metadata: {
+              ...message.metadata,
+              ...(clientMetadata as any),
+            },
           };
         }),
       )
@@ -33,7 +39,7 @@ export class NodeJSEventEmitterGateway<Metadata = {}> implements ServerGatewayIn
     return this.commands$;
   }
 
-  public warnings(): Observable<Error> {
+  public warnings(): Observable<Metadata & { error: Error }> {
     return EMPTY;
   }
 
