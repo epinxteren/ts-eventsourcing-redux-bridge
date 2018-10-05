@@ -1,4 +1,6 @@
 import { AnyAction } from 'redux';
+import { DomainEventConstructor } from 'ts-eventsourcing/Domain/DomainEvent';
+import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
 
 export interface EntityMetadata {
   entity: string;
@@ -12,6 +14,10 @@ export function hasEntityMetadata(action: any): action is AnyAction & { metadata
     typeof action.metadata === 'object' &&
     action.metadata &&
     typeof action.metadata.entity === 'string';
+}
+
+export function domainEventTypeWithEntity(domainEventClass: DomainEventConstructor<any>, entity: string) {
+  return typeWithEntity(entity, ClassUtil.nameOffConstructor(domainEventClass));
 }
 
 export function typeWithEntity(entity: string, type: string) {

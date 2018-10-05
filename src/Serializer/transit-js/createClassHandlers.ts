@@ -63,7 +63,7 @@ export function createClassHandlers(classes: { [key: string]: ClassConstructor }
     const classConstructor = classes[tag];
     const metadata = getSerializerMetadata(classConstructor);
     // This is for inheritance, uses tag comparison instead of instanceof.
-    classConstructor.prototype.transitTag = tag;
+    // classConstructor.prototype.transitTag = tag;
     return {
       tag,
       class: classConstructor,

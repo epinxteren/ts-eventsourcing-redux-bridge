@@ -129,4 +129,40 @@ describe('Serializer', () => {
 
   });
 
+  it('Can serialize nested classes', () => {
+
+    class Cat {
+      constructor(public legs: Leg[]) {
+      }
+
+    }
+
+    class Leg {
+      constructor(public claws: Claw, public hairColor: string) {
+      }
+    }
+
+    class Claw {
+
+    }
+
+    const serializer = new TransitJSSerializer([], createClassHandlers({ Cat, Leg, Claw }));
+    const serialized = serializer.serialize(new Cat([
+      new Leg(new Claw(), 'red'),
+      new Leg(new Claw(), 'brown'),
+      new Leg(new Claw(), 'white'),
+      new Leg(new Claw(), 'black'),
+    ]));
+
+    const deserialized = serializer.deserialize(serialized);
+
+    expect(deserialized).toEqual(new Cat([
+      new Leg(new Claw(), 'red'),
+      new Leg(new Claw(), 'brown'),
+      new Leg(new Claw(), 'white'),
+      new Leg(new Claw(), 'black'),
+    ]));
+
+  });
+
 });
