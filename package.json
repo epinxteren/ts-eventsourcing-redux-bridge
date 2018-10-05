@@ -1,12 +1,12 @@
 {
   "name": "eventsourcing-redux-bridge",
   "private": false,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Bridge between event sourcing and redux",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "publish-build": "rm -fr build && tsc && yarn copy-config-files && cd build && yarn publish && cd -",
+    "publish-build": "rm -fr build && tsc --build tsconfig.build.json && yarn copy-config-files && cd build && yarn publish && cd -",
     "copy-config-files": "yarn cpy '(package.json|README.md|.npmignore)' build/.",
     "watch": "tsc --watch",
     "test": "npm-run-all --parallel jest tslint jscpd tsc",
@@ -63,7 +63,7 @@
     "socket.io-client": "^2.1.1",
     "transit-immutable-js": "^0.7.0",
     "transit-js": "^0.8.861",
-    "ts-eventsourcing": "^1.1.6",
+    "ts-eventsourcing": "^1.1.7",
     "uuid-validate": "^0.0.3"
   }
 }

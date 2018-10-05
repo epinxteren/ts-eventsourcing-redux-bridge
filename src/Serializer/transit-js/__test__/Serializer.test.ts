@@ -1,22 +1,10 @@
+/* tslint:disable:max-classes-per-file */
+
 import 'jest';
 import { TransitJSSerializer } from '../TransitJSSerializer';
 import { Record } from 'immutable';
 import { createClassHandlers } from '../createClassHandlers';
-
-class TestClass {
-  public t = 2;
-  public name = 55;
-  public appel: string | undefined;
-  public date: Date | undefined;
-
-  constructor(public foo: string = 'bar') {
-
-  }
-}
-
-// class TestClass2 extends TestClass {
-//
-// }
+import { DeNormalize, Normalize } from '../../Serializeable';
 
 describe('Serializer', () => {
 
@@ -46,6 +34,16 @@ describe('Serializer', () => {
   });
 
   it('Can serialize a random class', () => {
+    class TestClass {
+      public t = 2;
+      public name = 55;
+      public appel: string | undefined;
+      public date: Date | undefined;
+
+      constructor(public foo: string = 'bar') {
+
+      }
+    }
     const test = new TestClass('d');
     const date = new Date();
     date.setTime(1518770045540);
@@ -59,20 +57,76 @@ describe('Serializer', () => {
     expect(deSerialized.date).toBeInstanceOf(Date);
   });
 
-  // TODO: fixme, cannot serialize extended classes.
-  // it.skip('Can serialize a different classes', () => {
-  //   const test = new TestClass('d');
-  //   const test2 = new TestClass2('e');
-  //   const date = new Date();
-  //   date.setTime(1518770045540);
-  //   test.date = date;
-  //   const serializer = new TransitJSSerializer([], createClassHandlers({ TestClass2, TestClass }));
-  //   const serialized = serializer.serialize([test, test2]);
-  //   expect(serialized).toMatchSnapshot();
-  //   const deSerialized = serializer.deserialize(serialized) as any;
-  //   expect(deSerialized).toEqual([test, test2]);
-  //   expect(deSerialized[0]).toBeInstanceOf(TestClass);
-  //   expect(deSerialized[1]).toBeInstanceOf(TestClass2);
-  // });
+  it('Can serialize a different classes', () => {
+    class TestBase {
+      public t = 2;
+      public name = 55;
+      public appel: string | undefined;
+      public date: Date | undefined;
+
+      constructor(public foo: string = 'bar') {
+
+      }
+    }
+
+    class TestChild extends TestBase {
+
+    }
+    const test = new TestBase('d');
+    const test2 = new TestChild('e');
+    const date = new Date();
+    date.setTime(1518770045540);
+    test.date = date;
+    const serializer = new TransitJSSerializer([], createClassHandlers({ TestClass2: TestChild, TestClass: TestBase }));
+    const serialized = serializer.serialize([test, test2]);
+    const deSerialized = serializer.deserialize(serialized) as any;
+    expect(deSerialized).toEqual([test, test2]);
+    expect(deSerialized[0]).toBeInstanceOf(TestBase);
+    expect(deSerialized[1]).toBeInstanceOf(TestChild);
+    expect(deSerialized[0]).not.toBeInstanceOf(TestChild);
+  });
+
+  class TestObject {
+
+    @DeNormalize
+    protected static deNormalize(data: any) {
+      return new this(data.v);
+    }
+    constructor(public value: number) {
+    }
+
+    @Normalize
+    protected normalize(): any {
+      return { v: this.value };
+    }
+  }
+
+  it('Can serialize with custom serializer functions', () => {
+    const serializer = new TransitJSSerializer([], createClassHandlers({ TestObject }));
+    const serialized = serializer.serialize(new TestObject(2323));
+
+    expect(serialized).toMatch('["~#TestObject",["^ ","v",2323]]');
+
+    const deSerialized = serializer.deserialize(serialized);
+    expect(deSerialized).toBeInstanceOf(TestObject);
+    expect(deSerialized).toEqual(new TestObject(2323));
+
+  });
+
+  it('Can serialize with custom serializer functions of extended class', () => {
+
+    class TestObject2 extends TestObject {
+    }
+
+    const serializer = new TransitJSSerializer([], createClassHandlers({ TestObject2 }));
+    const serialized = serializer.serialize(new TestObject2(2323));
+
+    expect(serialized).toMatch('["~#TestObject2",["^ ","v",2323]]');
+
+    const deSerialized = serializer.deserialize(serialized);
+    expect(deSerialized).toBeInstanceOf(TestObject2);
+    expect(deSerialized).toEqual(new TestObject2(2323));
+
+  });
 
 });

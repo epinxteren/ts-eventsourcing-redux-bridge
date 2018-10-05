@@ -13,6 +13,7 @@ class DoSomethingCommand extends SerializableCommand {
 it('Should be able to listen', () => {
   const emitter: NodeJS.EventEmitter | any = {
     addListener: jest.fn(),
+    removeListener: jest.fn(),
   };
   const serializer: SerializerInterface | any = {
     deserialize: jest.fn((value) => value),
@@ -32,6 +33,7 @@ it('Should be able to listen', () => {
 it('Should be able to handle warnings', () => {
   const emitter: NodeJS.EventEmitter | any = {
     addListener: jest.fn(),
+    removeListener: jest.fn(),
   };
   const serializer: SerializerInterface | any = {
     deserialize: jest.fn((value) => value),
@@ -52,6 +54,7 @@ it('Should be able to handle warnings', () => {
 it('Should be able to handle errors and send data', () => {
   const emitter: NodeJS.EventEmitter | any = {
     addListener: jest.fn(),
+    removeListener: jest.fn(),
   };
   const serializer: SerializerInterface | any = {
     deserialize: jest.fn(() => {

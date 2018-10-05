@@ -82,7 +82,7 @@ describe('dispatchAndSaveMessage', () => {
     const mockStore = {
       dispatch: jest.fn(() => order('store')),
     };
-    const identity = ScalarIdentity.create(1);
+    const identity = ScalarIdentity.create<number, ScalarIdentity<number>>(1);
     const model = new StoreReadModel(identity, mockStore as any, 12);
     const recordedOn = new Date();
     const message = new DomainMessage(identity, 12, 'my message', recordedOn);
@@ -106,7 +106,7 @@ describe('dispatchAndSaveMessage', () => {
     const mockStore = {
       dispatch: jest.fn(),
     };
-    const identity = ScalarIdentity.create(1);
+    const identity = ScalarIdentity.create<number, ScalarIdentity<number>>(1);
     const model = new StoreReadModel(identity, mockStore as any, 12);
     const recordedOn = new Date();
     const message = new DomainMessage(identity, 12, 'my message', recordedOn);

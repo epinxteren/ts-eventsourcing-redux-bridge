@@ -1,52 +1,41 @@
-import { Observable, Subject } from 'rxjs';
+import { fromEvent, Observable, Subject } from 'rxjs';
 import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
 import { isSerializableAction, SerializableAction } from '../../Redux/SerializableAction';
-import { share } from 'rxjs/operators';
 import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { MalformedSerializableActionError } from '../Error/MalformedSerializableActionError';
 import { SerializationError } from '../Error/SerializationError';
-import { DeserializationError } from '../Error/DeserializationError';
-import { MalformedSerializableCommandError } from '../Error/MalformedSerializableCommandError';
 import { ServerGatewayInterface } from '../ServerGatewayInterface';
+import { deserializeCommand } from '../rxjs/operators/deserializeCommand';
+import { catchError } from 'rxjs/operators';
+import { MalformedSerializableCommandError } from '../Error/MalformedSerializableCommandError';
 
 export class NodeJSEventEmitterGateway implements ServerGatewayInterface {
-  private readonly commands: Observable<SerializableCommand>;
-  private readonly warningsSubject: Subject<Error> = new Subject();
+  private readonly commands$: Observable<SerializableCommand>;
+  private readonly warningsSubject$: Subject<Error> = new Subject();
 
   constructor(private emitter: NodeJS.EventEmitter,
               private serializer: SerializerInterface) {
 
-    const commands = new Observable((subscriber) => {
-      const messageHandler = (json: string) => {
-        let command;
-        try {
-          command = this.serializer.deserialize(json);
-        } catch (e) {
-          this.warningsSubject.next(DeserializationError.commandCouldNotBeDeSerialized(json, e));
-          return;
-        }
-        // First line of defence, we know we only can only send SerializableCommands.
-        if (!SerializableCommand.isSerializableCommand(command)) {
-          this.warningsSubject.next(MalformedSerializableCommandError.notASerializableCommand(command));
-          return;
-        }
-        subscriber.next(command);
-      };
-      this.emitter.addListener('command', messageHandler);
-
-      // Teardown function.
-      return () => this.emitter.removeListener('command', messageHandler);
-    });
-
-    this.commands = commands.pipe(share());
+    const serializedCommands$ = fromEvent<string>(this.emitter, 'command');
+    this.commands$ = serializedCommands$
+      .pipe(
+        deserializeCommand(this.serializer),
+        catchError((e: Error, commands$) => {
+          if (e instanceof SerializationError || e instanceof MalformedSerializableCommandError) {
+            this.warningsSubject$.next(e);
+            return commands$;
+          }
+          throw e;
+        }),
+      );
   }
 
   public listen(): Observable<SerializableCommand> {
-    return this.commands;
+    return this.commands$;
   }
 
   public warnings(): Observable<Error> {
-    return this.warningsSubject;
+    return this.warningsSubject$;
   }
 
   public async emit(action: SerializableAction): Promise<void> {

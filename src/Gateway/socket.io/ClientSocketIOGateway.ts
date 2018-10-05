@@ -1,48 +1,29 @@
-import { Observable, Subject } from 'rxjs';
+import { fromEvent, Observable } from 'rxjs';
 import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
-import { isSerializableAction, SerializableAction } from '../../Redux/SerializableAction';
+import { SerializableAction } from '../../Redux/SerializableAction';
 
 import { SerializerInterface } from '../../Serializer/SerializerInterface';
-import { MalformedSerializableActionError } from '../Error/MalformedSerializableActionError';
 import { SerializationError } from '../Error/SerializationError';
-import { DeserializationError } from '../Error/DeserializationError';
 import { ClientGatewayInterface } from '../ClientGatewayInterface';
 import { MalformedSerializableCommandError } from '../Error/MalformedSerializableCommandError';
 import { share } from 'rxjs/operators';
+import { deserializeAction } from '../rxjs/operators/deserializeAction';
 
 export class ClientSocketIOGateway implements ClientGatewayInterface {
 
-  private readonly warningsSubject = new Subject<Error>();
-  private readonly observable: Observable<SerializableAction>;
+  private readonly actions$: Observable<SerializableAction>;
 
   constructor(private socket: SocketIOClient.Emitter,
               private serializer: SerializerInterface) {
-
-    const actions$ = new Observable<SerializableAction>((subscriber) => {
-      const messageListener = (json: string) => {
-        let action;
-        try {
-          action = this.serializer.deserialize(json);
-        } catch (e) {
-          this.warningsSubject.next(DeserializationError.eventCouldNotBeDeSerialized(json, e));
-          return;
-        }
-        if (!isSerializableAction(action)) {
-          this.warningsSubject.next(MalformedSerializableActionError.notASerializableAction(action));
-          return;
-        }
-        subscriber.next(action);
-      };
-      this.socket.addEventListener('action', messageListener);
-      return () => {
-        this.socket.removeEventListener('action', messageListener);
-      };
-    });
-    this.observable = actions$.pipe(share());
+    const serializedAction$ = fromEvent<string>(this.socket, 'action');
+    this.actions$ = serializedAction$.pipe(
+      deserializeAction(serializer),
+      share(),
+    );
   }
 
   public listen(): Observable<SerializableAction> {
-    return this.observable;
+    return this.actions$;
   }
 
   public async emit(command: SerializableCommand): Promise<void> {
@@ -56,10 +37,6 @@ export class ClientSocketIOGateway implements ClientGatewayInterface {
       throw SerializationError.commandCouldNotBeSerialized(command, e);
     }
     this.socket.emit('command', serialized);
-  }
-
-  public warnings(): Observable<Error> {
-    return this.warningsSubject;
   }
 
 }

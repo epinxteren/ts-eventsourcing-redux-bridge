@@ -6,10 +6,6 @@ export interface RecordConstructor {
   new(...args: any[]): Record<any>;
 }
 
-export interface ClassConstructor {
-  new(...args: any[]): any;
-}
-
 export class TransitJSSerializer implements SerializerInterface {
 
   private readonly recordTransit: any;

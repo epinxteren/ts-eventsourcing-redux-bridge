@@ -2,9 +2,7 @@ import { ClientSocketIOGateway } from '../ClientSocketIOGateway';
 import { SerializableAction } from '../../../Redux/SerializableAction';
 import { SerializableCommand } from '../../../EventSourcing/SerializableCommand';
 import { SerializerInterface } from '../../../Serializer/SerializerInterface';
-import { MalformedSerializableActionError } from '../../Error/MalformedSerializableActionError';
 import { SerializationError } from '../../Error/SerializationError';
-import { DeserializationError } from '../../Error/DeserializationError';
 import { MalformedSerializableCommandError } from '../../Error/MalformedSerializableCommandError';
 
 class DoSomethingCommand extends SerializableCommand {
@@ -41,35 +39,6 @@ it('Should be able to listen to actions', () => {
 
   expect(valueSpy).toBeCalledWith(action);
 
-});
-
-it('Should be able to listen to errors', () => {
-  const emitter: SocketIOClient.Emitter | any = {
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-  };
-
-  const serializer: SerializerInterface | any = {
-    deserialize: jest.fn(() => {
-      throw new Error('serialisation error');
-    }),
-  };
-
-  const gateway = new ClientSocketIOGateway(emitter, serializer);
-  const valueSpy = jest.fn();
-  gateway.listen().subscribe(valueSpy);
-  const errorSpy = jest.fn();
-  gateway.warnings().subscribe(errorSpy);
-
-  emitter.addEventListener.mock.calls[0][1]('serialized action');
-
-  expect(serializer.deserialize).toBeCalledWith('serialized action');
-  expect(errorSpy).toBeCalledWith(DeserializationError.eventCouldNotBeDeSerialized('serialized action', new Error('serialisation error')));
-
-  serializer.deserialize = jest.fn().mockReturnValue('Invalid action');
-  emitter.addEventListener.mock.calls[0][1]('serialized action');
-
-  expect(errorSpy).toBeCalledWith(MalformedSerializableActionError.notASerializableAction('Invalid action'));
 });
 
 it('Should be able to remove listener', async () => {

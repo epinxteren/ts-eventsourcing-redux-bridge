@@ -6,5 +6,4 @@ import { Observable } from 'rxjs';
 export interface ClientGatewayInterface {
   emit(command: SerializableCommand): Promise<void>;
   listen(): Observable<SerializableAction>;
-  warnings(): Observable<Error>;
 }
