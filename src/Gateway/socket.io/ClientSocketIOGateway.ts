@@ -1,4 +1,4 @@
-import { fromEvent, Observable } from 'rxjs';
+import { fromEvent, merge, Observable, throwError } from 'rxjs';
 import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
 import { SerializableAction } from '../../Redux/SerializableAction';
 
@@ -6,7 +6,7 @@ import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { SerializationError } from '../Error/SerializationError';
 import { ClientGatewayInterface } from '../ClientGatewayInterface';
 import { MalformedSerializableCommandError } from '../Error/MalformedSerializableCommandError';
-import { share } from 'rxjs/operators';
+import { mergeMap, share } from 'rxjs/operators';
 import { deserializeAction } from '../rxjs/operators/deserializeAction';
 import { EntityMetadata } from '../../Redux/EntityMetadata';
 
@@ -17,9 +17,15 @@ export class ClientSocketIOGateway implements ClientGatewayInterface {
   constructor(private socket: SocketIOClient.Emitter,
               private serializer: SerializerInterface) {
     const serializedAction$ = fromEvent<string>(this.socket, 'action');
-    this.actions$ = serializedAction$.pipe(
-      deserializeAction(serializer),
-      share(),
+    const errors$ = fromEvent<unknown>(this.socket, 'error');
+    this.actions$ = merge(
+      errors$.pipe(
+        mergeMap((error) => throwError(error)),
+      ),
+      serializedAction$.pipe(
+        deserializeAction(serializer),
+        share(),
+      ),
     );
   }
 

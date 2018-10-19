@@ -15,8 +15,14 @@ import { emitCommandHandlerResponseOrErrorToClientGateway } from './emitCommandH
  *     (input) => input.pipe(
  *          dispatchClientCommandOnCommandBus(commandBus),
  *          // White list errors and results.
- *          filter(...),
- *          catchError(...),
+ *          filter((action: CommandAction) => {
+ *              if (!(action.command instanceof YourCommand)) {
+ *                return false;
+ *              }
+ *
+ *              // Don't return any error.
+ *              return !action.metadata.error;
+ *          }),
  *     )
  *  ),
  *

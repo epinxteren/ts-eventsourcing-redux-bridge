@@ -2,7 +2,6 @@ import { AnyAction, Dispatch, MiddlewareAPI } from 'redux';
 
 import { Observable, throwError, Subject, merge } from 'rxjs';
 import { timeout, filter, map, share, concatMap, take, takeUntil } from 'rxjs/operators';
-import { EntityName } from '../../ValueObject/EntityName';
 import {
   COMMAND_FAILED,
   COMMAND_SUCCEEDED,
@@ -10,21 +9,11 @@ import {
   COMMAND_TRANSMITTING,
 } from '../Action/commandActions';
 import { CommandAction, isCommandAction, isCommandActionOfType } from '../CommandAction';
+import { withEntityName } from '../Operators/EntityMetadata';
+import { ofType } from '../Operators/Action';
 
 export function isCommandStatusSubscribable<T>(action: unknown): action is CommandAction<T> {
   return isCommandActionOfType(action, COMMAND_TRANSMITTING) && action.metadata.listenToCommandHandler;
-}
-
-function ofEntity(entity: EntityName) {
-  return (input: Observable<CommandAction>) => {
-    return input.pipe(filter(action => action.metadata.entity === entity));
-  };
-}
-
-function ofType(...type: string[]) {
-  return (input: Observable<CommandAction>) => {
-    return input.pipe(filter(action => type.indexOf(action.type) >= 0));
-  };
 }
 
 /**
@@ -50,7 +39,7 @@ export function commandHandlerResponseMiddleware<D extends Dispatch = Dispatch, 
     if (isCommandStatusSubscribable(action)) {
       const entity = action.metadata.entity;
       const commandsForEntity$: Observable<CommandAction> = commandActions$.pipe(
-        ofEntity(entity),
+        withEntityName(entity),
         share(),
       );
 

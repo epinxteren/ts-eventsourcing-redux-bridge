@@ -1,4 +1,4 @@
-import { EntityMetadata, hasEntityMetadata } from './EntityMetadata';
+import { EntityMetadata, hasEntityMetadata, matchActionTypeEntity } from './EntityMetadata';
 import { SerializableCommand } from '../EventSourcing/SerializableCommand';
 
 export interface CommandAction<T extends SerializableCommand = SerializableCommand, Metadata = {}> {
@@ -14,5 +14,5 @@ export function isCommandAction(action: any): action is CommandAction {
 }
 
 export function isCommandActionOfType(action: any, type: (entity: string) => string): action is CommandAction {
-  return isCommandAction(action) && action.type === type(action.metadata.entity);
+  return isCommandAction(action) && matchActionTypeEntity(action, type);
 }

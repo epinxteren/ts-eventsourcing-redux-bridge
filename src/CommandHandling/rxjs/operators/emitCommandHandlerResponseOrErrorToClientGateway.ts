@@ -1,11 +1,12 @@
 import { Observable, of } from 'rxjs';
-import { catchError, mergeMap, share } from 'rxjs/operators';
+import { catchError, map, mergeMap, share } from 'rxjs/operators';
 import { commandHandledFailed, commandHandledSuccessfully } from '../../../Redux/Action/commandActions';
 import { ServerGatewayMessage } from '../../../Gateway/ValueObject/ServerGatewayMessage';
 import { ServerGatewayMetadata } from '../../../Gateway/ValueObject/ServerGatewayMetadata';
 import { fromClientCommand } from './fromClientCommand';
 import { hasEntityMetadata } from '../../../Redux/EntityMetadata';
 import { MissingEntityMetadataError } from '../../../Redux/Error/MissingEntityMetadataError';
+import { CommandAction } from '../../../Redux/CommandAction';
 
 /**
  * Emit success or error action on client gateway.
@@ -13,7 +14,7 @@ import { MissingEntityMetadataError } from '../../../Redux/Error/MissingEntityMe
 export function emitCommandHandlerResponseOrErrorToClientGateway<T extends ServerGatewayMessage<ServerGatewayMetadata<any>>>(
   handleMessages$: (input: Observable<T>) => Observable<unknown>,
 ) {
-  return (input: Observable<T>) => {
+  return (input: Observable<T>): Observable<CommandAction> => {
     return input.pipe(
       fromClientCommand((clientGateway, message) => {
         return () => {
@@ -44,6 +45,7 @@ export function emitCommandHandlerResponseOrErrorToClientGateway<T extends Serve
                 await clientGateway.emit(failedAction);
                 return of(failedAction);
               }),
+              map((action) => action as any),
             );
         };
       }),
