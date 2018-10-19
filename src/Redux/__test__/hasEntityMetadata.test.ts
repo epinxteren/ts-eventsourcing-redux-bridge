@@ -21,8 +21,8 @@ it('Should know when its has valid entity metadata', () => {
 });
 
 it('Can create entity names', () => {
-  expect(typeWithEntity('PRODUCTS', 'bought')).toEqual('[PRODUCTS] bought');
-  expect(typeWithEntity('USER', 'login')).toEqual('[USER] login');
+  expect(typeWithEntity('bought', 'PRODUCTS')).toEqual('[PRODUCTS] bought');
+  expect(typeWithEntity('login', 'USER')).toEqual('[USER] login');
 });
 
 it('Can create entity names, by factory', () => {

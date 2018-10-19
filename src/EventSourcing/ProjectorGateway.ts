@@ -52,7 +52,7 @@ export class ProjectorGateway<State, Id extends Identity, Action extends Seriali
   ) {
     const domainEventMetadata = this.createDomainEventMetadata(model, message, additionalMetadata);
     const action: DomainEventAction<DomainEvent, Id, typeof domainEventMetadata> = {
-      type: typeWithEntity(domainEventMetadata.entity, ClassUtil.nameOffInstance(message.payload)),
+      type: typeWithEntity(ClassUtil.nameOffInstance(message.payload), domainEventMetadata.entity),
       event: message.payload,
       metadata: domainEventMetadata,
     };

@@ -58,7 +58,7 @@ export function sendCommand(command: SerializableCommand, entity: string, metada
  * @see sendCommand
  */
 export function sendCommandAndListenToHandler<HandlerResponse>(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}):
-  Promise<HandlerResponse> | typeof command {
+  Promise<HandlerResponse> {
   return listenToCommandHandler(sendCommand(command, entity, metadata));
 }
 
@@ -90,7 +90,7 @@ export function sendCommandAndListenToHandler<HandlerResponse>(command: Serializ
  *
  * Requires {@see commandHandlerResponseMiddleware}
  */
-export function listenToCommandHandler<T>(command: CommandAction<any>): Promise<T> | typeof command {
+export function listenToCommandHandler<T>(command: CommandAction<any>): Promise<T> {
   command.metadata.listenToCommandHandler = true;
   return command as any;
 }
