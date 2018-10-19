@@ -9,7 +9,7 @@ import { ClientGatewayInterface } from '../../Gateway/ClientGatewayInterface';
 
 export function commandMiddleware<D extends Dispatch = Dispatch, S = any, Action extends AnyAction = AnyAction>(gateway: ClientGatewayInterface) {
   return (api: MiddlewareAPI<D, S>) => (next: D) => (action: Action): any => {
-    next(action);
+    const response = next(action);
     if (isCommandActionOfType(action, COMMAND_TRANSMITTING)) {
       gateway.emit(action.command, action.metadata)
         .then(() => {
@@ -22,5 +22,6 @@ export function commandMiddleware<D extends Dispatch = Dispatch, S = any, Action
           }));
         });
     }
+    return response;
   };
 }

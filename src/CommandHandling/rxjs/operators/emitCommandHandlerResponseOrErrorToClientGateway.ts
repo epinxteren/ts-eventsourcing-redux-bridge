@@ -4,6 +4,8 @@ import { commandHandledFailed, commandHandledSuccessfully } from '../../../Redux
 import { ServerGatewayMessage } from '../../../Gateway/ValueObject/ServerGatewayMessage';
 import { ServerGatewayMetadata } from '../../../Gateway/ValueObject/ServerGatewayMetadata';
 import { fromClientCommand } from './fromClientCommand';
+import { hasEntityMetadata } from '../../../Redux/EntityMetadata';
+import { MissingEntityMetadataError } from '../../../Redux/Error/MissingEntityMetadataError';
 
 /**
  * Emit success or error action on client gateway.
@@ -19,18 +21,24 @@ export function emitCommandHandlerResponseOrErrorToClientGateway<T extends Serve
           return response$
             .pipe(
               mergeMap(async (response: unknown) => {
+                if (!hasEntityMetadata(message)) {
+                  throw MissingEntityMetadataError.forGatewayMessage(message);
+                }
                 const successAction = commandHandledSuccessfully(
                   message.command,
-                  message.metadata.entity ? message.metadata.entity : 'UNKNOWN',
+                  message.metadata.entity,
                   response,
                 );
                 await clientGateway.emit(successAction);
                 return of(successAction);
               }),
               catchError(async (error) => {
+                if (!hasEntityMetadata(message)) {
+                  throw MissingEntityMetadataError.forGatewayMessage(message);
+                }
                 const failedAction = commandHandledFailed(
                   message.command,
-                  message.metadata.entity ? message.metadata.entity : 'UNKNOWN',
+                  message.metadata.entity,
                   error,
                 );
                 await clientGateway.emit(failedAction);

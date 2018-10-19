@@ -1,8 +1,6 @@
 import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
 import { CommandAction } from '../CommandAction';
 import { typeWithEntityFactory } from '../EntityMetadata';
-import { Subscribable } from 'rxjs';
-import { CommandHandlerResponseSubscribable } from '../Middleware/commandHandlerResponseMiddleware';
 
 /**
  * Return action for sending the command.
@@ -34,11 +32,6 @@ export const COMMAND_FAILED = typeWithEntityFactory('command handling failed');
 export const COMMAND_SUCCEEDED = typeWithEntityFactory('command handling succeeded');
 
 /**
- * Type that there is a listener attached.
- */
-export const COMMAND_LISTEN = typeWithEntityFactory('command listener attached');
-
-/**
  * Send a command.
  *
  * Will be picked up by the {@see commandMiddleware}
@@ -61,14 +54,45 @@ export function sendCommand(command: SerializableCommand, entity: string, metada
 /**
  * Will send a command, and return commandHandler status.
  *
- * @see commandHandlerResponseMiddleware
+ * @see listenToCommandHandler
  * @see sendCommand
  */
 export function sendCommandAndListenToHandler<HandlerResponse>(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}):
-  Subscribable<HandlerResponse> &
-  { type: string, toPromise: () => Promise<HandlerResponse> } {
-  const action = sendCommand(command, entity, metadata);
-  return new CommandHandlerResponseSubscribable<HandlerResponse>(action);
+  Promise<HandlerResponse> | typeof command {
+  return listenToCommandHandler(sendCommand(command, entity, metadata));
+}
+
+/**
+ * Listen to command handler response or errors.
+ *
+ * The return type is actual not really a promise. The middleware returns the promise when you bind it tor Redux.
+ *
+ * @example
+ *
+ *  function registerAccount(name: string, password: string) {
+ *    return listenToCommand<UserId>(sendCommand(
+ *      new UserRegisterCommand(name, password),
+ *      'register'
+ *    ));
+ *  }
+ *
+ *  const RegisterForm = ({ register }: { register: (name: string, password: string) => Promise<UserId> }) => (
+ *    // The form
+ *    return <form>...</form>;
+ *  );
+ *
+ *  const mapDispatchToProps = { register: registerAccount };
+ *
+ *  export const ConnectedRegisterForm = connect(
+ *    null,
+ *    mapDispatchToProps,
+ *  )(RegisterForm);
+ *
+ * Requires {@see commandHandlerResponseMiddleware}
+ */
+export function listenToCommandHandler<T>(command: CommandAction<any>): Promise<T> | typeof command {
+  command.metadata.listenToCommandHandler = true;
+  return command as any;
 }
 
 export function commandTransmittedSuccessfully(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}): CommandAction {
