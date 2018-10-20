@@ -1,6 +1,6 @@
-import { SerializableCommand } from '../SerializableCommand';
-import { CommandAction } from '../CommandAction';
-import { typeWithEntityFactory } from '../../Redux/EntityMetadata';
+import { SerializableCommand } from './SerializableCommand';
+import { CommandAction } from './CommandAction';
+import { typeWithEntityFactory } from '../Redux/EntityMetadata';
 
 /**
  * Return action for sending the command.

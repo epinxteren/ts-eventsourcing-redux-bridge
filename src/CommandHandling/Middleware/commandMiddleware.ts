@@ -4,7 +4,7 @@ import {
   COMMAND_TRANSMITTING,
   commandTransmissionFailed,
   commandTransmittedSuccessfully,
-} from '../Action/commandActions';
+} from '../actions';
 import { ClientGatewayInterface } from '../../Gateway/ClientGatewayInterface';
 
 export function commandMiddleware<D extends Dispatch = Dispatch, S = any, Action extends AnyAction = AnyAction>(gateway: ClientGatewayInterface) {

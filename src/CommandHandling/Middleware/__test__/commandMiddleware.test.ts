@@ -1,6 +1,6 @@
 import { commandMiddleware } from '../commandMiddleware';
 import { MiddlewareAPI } from 'redux';
-import { commandTransmissionFailed, commandTransmittedSuccessfully, sendCommand } from '../../Action/commandActions';
+import { commandTransmissionFailed, commandTransmittedSuccessfully, sendCommand } from '../../actions';
 import { SerializableCommand } from '../../SerializableCommand';
 import { ClientGatewayInterface } from '../../../Gateway/ClientGatewayInterface';
 

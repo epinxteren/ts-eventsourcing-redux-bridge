@@ -8,7 +8,7 @@ import {
   gatewayError,
   gatewayIsClosed,
   gatewayIsOpen,
-} from '../Action/gatewayActions';
+} from '../actions';
 import { ClientGatewayInterface } from '../ClientGatewayInterface';
 import { withEntityName } from '../../Redux/Operators/EntityMetadata';
 import { GatewayAction, isGatewayAction } from '../GatewayAction';
@@ -30,7 +30,7 @@ export function gatewayMiddleway<T, Metadata extends EntityMetadata = EntityMeta
       const entity = action.metadata.entity;
 
       merge(
-        of(gatewayIsOpen<T>(entity, action.gate)),
+        of(gatewayIsOpen<T>(entity, action.gate, action.metadata)),
         gateway.listen().pipe(catchError((error, stream) => {
           api.dispatch(gatewayError(entity, action.gate, error));
           return stream;
@@ -45,10 +45,10 @@ export function gatewayMiddleway<T, Metadata extends EntityMetadata = EntityMeta
             api.dispatch(nextAction);
           },
           (error) => {
-            api.dispatch(gatewayError(entity, action.gate, error));
+            api.dispatch(gatewayError(entity, action.gate, error, action.metadata));
           },
           () => {
-            api.dispatch(gatewayIsClosed(entity, action.gate));
+            api.dispatch(gatewayIsClosed(entity, action.gate, action.metadata));
           },
         );
     }

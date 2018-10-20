@@ -7,7 +7,7 @@ import {
   COMMAND_SUCCEEDED,
   COMMAND_TRANSMISSION_FAILED,
   COMMAND_TRANSMITTING,
-} from '../Action/commandActions';
+} from '../actions';
 import { CommandAction, isCommandAction, isCommandActionOfType } from '../CommandAction';
 import { withEntityName } from '../../Redux/Operators/EntityMetadata';
 import { ofType } from '../../Redux/Operators/Action';

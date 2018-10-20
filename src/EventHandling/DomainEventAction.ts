@@ -28,6 +28,6 @@ export function asDomainEventAction<Event extends DomainEvent, Id extends Identi
   return action as any;
 }
 
-export function domainEventTypeWithEntity(domainEventClass: DomainEventConstructor<any>, entity: EntityName) {
+export function domainEventActionType(domainEventClass: DomainEventConstructor<any>, entity: EntityName) {
   return typeWithEntity(ClassUtil.nameOffConstructor(domainEventClass), entity);
 }

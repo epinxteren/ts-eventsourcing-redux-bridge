@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 import { catchError, map, mergeMap, share } from 'rxjs/operators';
-import { commandHandledFailed, commandHandledSuccessfully } from '../Action/commandActions';
+import { commandHandledFailed, commandHandledSuccessfully } from '../actions';
 import { ServerGatewayMessage } from '../../Gateway/ValueObject/ServerGatewayMessage';
 import { ServerGatewayMetadata } from '../../Gateway/ValueObject/ServerGatewayMetadata';
 import { fromClientCommand } from './fromClientCommand';
