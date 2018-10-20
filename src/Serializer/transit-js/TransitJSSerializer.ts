@@ -1,3 +1,5 @@
+/// <reference path="./transit-immutable-js.d.ts" />
+
 import * as transit from 'transit-immutable-js';
 import { Record } from 'immutable';
 import { SerializerInterface } from '../SerializerInterface';
