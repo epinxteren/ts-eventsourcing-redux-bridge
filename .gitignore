@@ -2,7 +2,4 @@ coverage
 .idea
 node_modules
 yarn-error.log
-**/*.d.ts
-**/*.map
-index.js
 build
