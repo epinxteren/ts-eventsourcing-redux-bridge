@@ -1,5 +1,5 @@
 import { NodeJSEventEmitterGateway } from '../NodeJSEventEmitterGateway';
-import { SerializableCommand } from '../../../EventSourcing/SerializableCommand';
+import { SerializableCommand } from '../../../CommandHandling/SerializableCommand';
 import { SerializerInterface } from '../../../Serializer/SerializerInterface';
 import { SerializationError } from '../../Error/SerializationError';
 import { MalformedSerializableActionError } from '../../Error/MalformedSerializableActionError';

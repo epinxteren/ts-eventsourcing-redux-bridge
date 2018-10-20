@@ -1,4 +1,4 @@
-import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
+import { SerializableCommand } from '../../CommandHandling/SerializableCommand';
 import { ServerGatewayInterface } from '../ServerGatewayInterface';
 import { ServerGatewayMetadata } from './ServerGatewayMetadata';
 

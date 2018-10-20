@@ -4,11 +4,11 @@ import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { MalformedSerializableActionError } from '../Error/MalformedSerializableActionError';
 import { SerializationError } from '../Error/SerializationError';
 import { ServerGatewayInterface } from '../ServerGatewayInterface';
-import { deserializeCommand } from '../rxjs/operators/deserializeCommand';
+import { deserializeCommand } from '../Operators/deserializeCommand';
 import { map } from 'rxjs/operators';
 import { ServerGatewayMessage } from '../ValueObject/ServerGatewayMessage';
 import { ServerGatewayMetadata } from '../ValueObject/ServerGatewayMetadata';
-import { SerializableCommand } from '../../EventSourcing/SerializableCommand';
+import { SerializableCommand } from '../../CommandHandling/SerializableCommand';
 import { EntityMetadata } from '../../Redux/EntityMetadata';
 
 export class NodeJSEventEmitterGateway<Metadata extends ServerGatewayMetadata<any> = { clientGateway: any }> implements ServerGatewayInterface<Metadata> {

@@ -1,5 +1,5 @@
 
-import { SerializableCommand } from '../EventSourcing/SerializableCommand';
+import { SerializableCommand } from '../CommandHandling/SerializableCommand';
 import { SerializableAction } from '../Redux/SerializableAction';
 import { Observable } from 'rxjs';
 import { EntityMetadata } from '../Redux/EntityMetadata';

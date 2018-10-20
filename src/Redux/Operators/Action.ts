@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { CommandAction } from '../CommandAction';
+import { CommandAction } from '../../CommandHandling/CommandAction';
 
 export function ofType(...type: string[]) {
   return (input: Observable<CommandAction>) => {

@@ -1,6 +1,6 @@
 import { ClientSocketIOGateway } from '../ClientSocketIOGateway';
 import { SerializableAction } from '../../../Redux/SerializableAction';
-import { SerializableCommand } from '../../../EventSourcing/SerializableCommand';
+import { SerializableCommand } from '../../../CommandHandling/SerializableCommand';
 import { SerializerInterface } from '../../../Serializer/SerializerInterface';
 import { SerializationError } from '../../Error/SerializationError';
 import { MalformedSerializableCommandError } from '../../Error/MalformedSerializableCommandError';
