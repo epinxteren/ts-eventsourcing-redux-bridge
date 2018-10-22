@@ -39,9 +39,7 @@
 
     "declaration": true
   },
-  "exclude": [
-
-  ],
+  "exclude": [],
   "include": [
     "src/**/*"
   ]

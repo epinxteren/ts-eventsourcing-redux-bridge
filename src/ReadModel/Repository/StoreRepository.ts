@@ -6,7 +6,9 @@ import { SerializableAction } from '../../Redux/SerializableAction';
 import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
 import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
 
-export class StoreRepository<State, Id extends Identity, Action extends SerializableAction> implements StoreRepositoryInterface<State, Id, Action> {
+export class StoreRepository<State,
+  Id extends Identity = Identity,
+  Action extends SerializableAction = SerializableAction> implements StoreRepositoryInterface<State, Id, Action> {
 
   constructor(private readonly stateRepository: Repository<StateReadModel<State, Id>>, private readonly storeFactory: StoreFactory<State, Action>) {
 
