@@ -5,7 +5,7 @@ import { typeWithEntityFactory } from '../Redux/EntityMetadata';
 /**
  * Return action for sending the command.
  *
- * The action will be picked up by the middleware {@see queryMiddleware}
+ * The action will be picked up by the middleware {@see commandMiddleware}
  */
 export const COMMAND_TRANSMITTING = typeWithEntityFactory('command transmitting');
 
@@ -34,7 +34,7 @@ export const COMMAND_SUCCEEDED = typeWithEntityFactory('command handling succeed
 /**
  * Send a command.
  *
- * Will be picked up by the {@see queryMiddleware}
+ * Will be picked up by the {@see commandMiddleware}
  *
  * @example
  *
@@ -88,7 +88,7 @@ export function sendCommandAndListenToHandler<HandlerResponse>(command: Serializ
  *    mapDispatchToProps,
  *  )(RegisterForm);
  *
- * Requires {@see queryHandlerResponseMiddleware}
+ * Requires {@see commandHandlerResponseMiddleware}
  */
 export function listenToCommandHandler<T>(command: CommandAction<any>): Promise<T> {
   command.metadata.listenToCommandHandler = true;

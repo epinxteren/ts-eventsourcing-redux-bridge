@@ -9,7 +9,7 @@ import { emitQueryHandlerResponseOrErrorToClientGateway } from './emitQueryHandl
  * Dispatch on query bus and emit success or error on client gateway.
  *
  * This operator is optional, keep in mind ALL errors and responses are send back to the client.
- * It's recommended to whitelist querys and errors that can be send back to the client.
+ * It's recommended to whitelist queries and errors that can be send back to the client.
  *
  *  emitQueryHandlerResponseOrErrorToClientGateway(
  *     (input) => input.pipe(
@@ -31,7 +31,7 @@ import { emitQueryHandlerResponseOrErrorToClientGateway } from './emitQueryHandl
  *  gateway
  *  .listen()
  *  .pipe(
- *    // Tap to see what querys is being received in
+ *    // Tap to see what queries is being received in
  *    tap((message) => {
  *        const client = message.metadata.client;
  *        console.log('Received query: ', ClassUtil.nameOffInstance(message.query));

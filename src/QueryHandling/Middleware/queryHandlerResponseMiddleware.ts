@@ -12,7 +12,7 @@ import { QueryAction, isQueryAction, isQueryActionOfType } from '../QueryAction'
 import { withEntityName } from '../../Redux/Operators/EntityMetadata';
 import { ofType } from '../../Redux/Operators/Action';
 
-export function isQueryStatusSubscribable<T>(action: unknown): action is QueryAction<T> {
+export function isQueriestatusSubscribable<T>(action: unknown): action is QueryAction<T> {
   return isQueryActionOfType(action, QUERY_TRANSMITTING) && action.metadata.listenToQueryHandler;
 }
 
@@ -36,14 +36,14 @@ export function queryHandlerResponseMiddleware<D extends Dispatch = Dispatch, S 
 
     handleQueryActions$.next(action);
 
-    if (isQueryStatusSubscribable(action)) {
+    if (isQueriestatusSubscribable(action)) {
       const entity = action.metadata.entity;
-      const querysForEntity$: Observable<QueryAction> = queryActions$.pipe(
+      const queriesForEntity$: Observable<QueryAction> = queryActions$.pipe(
         withEntityName(entity),
         share(),
       );
 
-      const response$ = querysForEntity$.pipe(
+      const response$ = queriesForEntity$.pipe(
         ofType(QUERY_SUCCEEDED(entity)),
         take(1),
         map((nextQueryAction) => {
@@ -52,7 +52,7 @@ export function queryHandlerResponseMiddleware<D extends Dispatch = Dispatch, S 
         share(),
       );
 
-      const errors$ = querysForEntity$.pipe(
+      const errors$ = queriesForEntity$.pipe(
         // If we don't got an event in time, throw an error.
         timeout(timeoutTime),
         // Or throw when one of the following event are given.
