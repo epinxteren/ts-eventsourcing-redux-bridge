@@ -25,7 +25,7 @@ it('Should be able to listen', async () => {
   const command = new DoSomethingCommand();
   emitter.addListener.mock.calls[0][1]({ command, metadata: { entity: 'test' } });
   const message = await promise;
-  expect(message).toEqual({ command, metadata: { foo: 'bar', clientGateway: null, entity: 'test' } });
+  expect(message).toEqual({ payload: command, metadata: { foo: 'bar', clientGateway: null, entity: 'test' } });
 });
 
 it('Should be able to handle errors and send data', () => {
@@ -115,5 +115,5 @@ it('Should be able to remove listener', async () => {
   expect(emitter.removeListener.mock.calls[0][0]).toEqual('command');
   expect(emitter.removeListener.mock.calls[0][1]).toBe(emitter.addListener.mock.calls[0][1]);
 
-  expect(spy.mock.calls).toEqual([['add'], ['remove']]);
+  expect(spy.mock.calls).toEqual([['add'], ['add'], ['remove'], ['remove']]);
 });

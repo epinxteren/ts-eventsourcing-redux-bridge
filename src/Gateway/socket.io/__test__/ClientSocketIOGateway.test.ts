@@ -9,7 +9,7 @@ class DoSomethingCommand extends SerializableCommand {
 
 }
 
-it('Should be able to listen to actions', () => {
+it('Should be able to listen to actions', async () => {
 
   const emitter: SocketIOClient.Emitter | any = {
     addEventListener: jest.fn(),
@@ -30,11 +30,13 @@ it('Should be able to listen to actions', () => {
 
   const gateway = new ClientSocketIOGateway(emitter, serializer);
   const valueSpy = jest.fn();
-  gateway.listen().subscribe(valueSpy);
+  const promise = gateway.listen();
+  emitter.addEventListener.mock.calls[0][1]();
+  (await promise).subscribe(valueSpy);
 
-  expect(emitter.addEventListener.mock.calls[0][0]).toEqual('error');
-  expect(emitter.addEventListener.mock.calls[1][0]).toEqual('action');
-  emitter.addEventListener.mock.calls[1][1]('serialized action');
+  expect(emitter.addEventListener.mock.calls[1][0]).toEqual('error');
+  expect(emitter.addEventListener.mock.calls[3][0]).toEqual('action');
+  emitter.addEventListener.mock.calls[3][1]('serialized action');
 
   expect(serializer.deserialize).toBeCalledWith('serialized action');
 
@@ -49,15 +51,17 @@ it('Should be able to remove listener', async () => {
     removeEventListener: jest.fn(() => spy('remove')),
   };
   const gateway = new ClientSocketIOGateway(emitter, null as any);
-  gateway.listen().subscribe().unsubscribe();
+  const promise = gateway.listen();
+  emitter.addEventListener.mock.calls[0][1]();
+  (await promise).subscribe().unsubscribe();
 
-  expect(emitter.addEventListener.mock.calls[0][0]).toEqual('error');
-  expect(emitter.addEventListener.mock.calls[1][0]).toEqual('action');
-  expect(emitter.removeEventListener.mock.calls[0][0]).toEqual('error');
-  expect(emitter.removeEventListener.mock.calls[1][0]).toEqual('action');
-  expect(emitter.removeEventListener.mock.calls[1][1]).toBe(emitter.removeEventListener.mock.calls[1][1]);
+  expect(emitter.addEventListener.mock.calls[1][0]).toEqual('error');
+  expect(emitter.addEventListener.mock.calls[3][0]).toEqual('action');
+  expect(emitter.removeEventListener.mock.calls[2][0]).toEqual('error');
+  expect(emitter.removeEventListener.mock.calls[3][0]).toEqual('action');
+  expect(emitter.removeEventListener.mock.calls[3][1]).toBe(emitter.removeEventListener.mock.calls[3][1]);
 
-  expect(spy.mock.calls).toEqual([['add'], ['add'], ['remove'], ['remove']]);
+  expect(spy.mock.calls).toEqual([['add'], ['add'], ['remove'], ['remove'], ['add'], ['add'], ['remove'], ['remove']]);
 });
 
 it('Should be able to emit commands', async () => {

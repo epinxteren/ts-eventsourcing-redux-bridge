@@ -1,4 +1,4 @@
-import { EMPTY, fromEvent, Observable } from 'rxjs';
+import { EMPTY, fromEvent, merge, Observable } from 'rxjs';
 import { isSerializableAction, SerializableAction } from '../../Redux/SerializableAction';
 import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { MalformedSerializableActionError } from '../Error/MalformedSerializableActionError';
@@ -10,33 +10,50 @@ import { ServerGatewayMessage } from '../ValueObject/ServerGatewayMessage';
 import { ServerGatewayMetadata } from '../ValueObject/ServerGatewayMetadata';
 import { SerializableCommand } from '../../CommandHandling/SerializableCommand';
 import { EntityMetadata } from '../../Redux/EntityMetadata';
+import { SerializableQuery } from '../../QueryHandling/SerializableQuery';
+import { deserializeQuery } from '../Operators/deserializeQuery';
 
 export class NodeJSEventEmitterGateway<Metadata extends ServerGatewayMetadata<any> = { clientGateway: any }> implements ServerGatewayInterface<Metadata> {
-  private readonly commands$: Observable<ServerGatewayMessage<Metadata>>;
+  private readonly messages$: Observable<ServerGatewayMessage<Metadata>>;
 
   constructor(private emitter: NodeJS.EventEmitter,
               private serializer: SerializerInterface,
               metadata?: Metadata) {
     const clientMetadata: any = metadata ? metadata : { clientGateway: this };
     const serializedCommands$ = fromEvent<string>(this.emitter, 'command');
-    this.commands$ = serializedCommands$
-      .pipe(
-        deserializeCommand(this.serializer),
-        map((message: { command: SerializableCommand, metadata: EntityMetadata }) => {
-          return {
-            command: message.command,
-            metadata: {
-              ...message.metadata,
-              ...(clientMetadata as any),
-            },
-          };
-        }),
-      )
-    ;
+    const serializedQuery$ = fromEvent<string>(this.emitter, 'query');
+    this.messages$ = merge(
+      serializedCommands$
+        .pipe(
+          deserializeCommand(this.serializer),
+          map((message: { command: SerializableCommand, metadata: EntityMetadata }) => {
+            return {
+              payload: message.command,
+              metadata: {
+                ...message.metadata,
+                ...(clientMetadata as any),
+              },
+            };
+          }),
+        ),
+      serializedQuery$
+        .pipe(
+          deserializeQuery(this.serializer),
+          map((message: { query: SerializableQuery, metadata: EntityMetadata }) => {
+            return {
+              payload: message.query,
+              metadata: {
+                ...message.metadata,
+                ...(clientMetadata as any),
+              },
+            };
+          }),
+        ),
+    );
   }
 
   public listen(): Observable<ServerGatewayMessage<Metadata>> {
-    return this.commands$;
+    return this.messages$;
   }
 
   public warnings(): Observable<Metadata & { error: Error }> {

@@ -6,5 +6,9 @@ import { EntityMetadata } from '../Redux/EntityMetadata';
 
 export interface ClientGatewayInterface {
   emit(command: SerializableCommand, metadata: EntityMetadata): Promise<void>;
-  listen(): Observable<SerializableAction>;
+
+  /**
+   * Resolved promise means the client is connected.
+   */
+  listen(): Promise<Observable<SerializableAction>>;
 }

@@ -1,11 +1,11 @@
 import { SerializableAction } from '../Redux/SerializableAction';
 import { DomainEventMetadata } from '../Redux/DomainEventMetadata';
-import { InvalidTypeError } from '../Redux/Error/InvalidTypeError';
 import { DomainEvent, DomainEventConstructor } from 'ts-eventsourcing/Domain/DomainEvent';
 import { Identity, IdentityConstructor } from 'ts-eventsourcing/ValueObject/Identity';
 import { EntityName } from '../ValueObject/EntityName';
 import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
 import { typeWithEntity } from '../Redux/EntityMetadata';
+import { InvalidTypeError } from './Error/InvalidTypeError';
 
 export interface DomainEventAction<Event extends DomainEvent,
   Id extends Identity = Identity,
