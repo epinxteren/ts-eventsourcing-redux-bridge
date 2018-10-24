@@ -1,6 +1,6 @@
 import { AnyAction, Dispatch, MiddlewareAPI } from 'redux';
-import { merge, Subject, of } from 'rxjs';
-import { share, filter, take, takeUntil, catchError } from 'rxjs/operators';
+import { merge, Subject, of, from } from 'rxjs';
+import { share, filter, take, takeUntil, catchError, mergeMap } from 'rxjs/operators';
 import { EntityMetadata } from '../../Redux/EntityMetadata';
 import {
   GATEWAY_CLOSE,
@@ -29,12 +29,15 @@ export function gatewayMiddleway<T, Metadata extends EntityMetadata = EntityMeta
       const gateway = gatewayFactory(action.gate, action.metadata);
       const entity = action.metadata.entity;
 
-      merge(
-        of(gatewayIsOpen<T>(entity, action.gate, action.metadata)),
-        gateway.listen().pipe(catchError((error, stream) => {
-          api.dispatch(gatewayError(entity, action.gate, error));
-          return stream;
-        })),
+      from(gateway.listen()).pipe(
+        mergeMap((actions$) => merge(
+          of(gatewayIsOpen<T>(entity, action.gate, action.metadata)),
+          actions$.pipe(catchError((error, stream) => {
+            api.dispatch(gatewayError(entity, action.gate, error));
+            return stream;
+          })),
+          ),
+        ),
       )
         .pipe(takeUntil(closeGatewayActions$.pipe(
           withEntityName(entity),

@@ -1,7 +1,7 @@
 {
   "name": "eventsourcing-redux-bridge",
   "private": false,
-  "version": "1.2.9",
+  "version": "1.2.11",
   "description": "Bridge between event sourcing and redux",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -63,7 +63,7 @@
     "socket.io-client": "^2.1.1",
     "transit-immutable-js": "^0.7.0",
     "transit-js": "^0.8.861",
-    "ts-eventsourcing": "^1.1.9",
+    "ts-eventsourcing": "^1.1.10",
     "uuid-validate": "^0.0.3"
   }
 }

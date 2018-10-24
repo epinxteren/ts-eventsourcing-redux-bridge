@@ -1,4 +1,4 @@
-import { fromEvent, merge, Observable, throwError } from 'rxjs';
+import { fromEvent, merge, Observable, of, throwError } from 'rxjs';
 import { SerializableCommand } from '../../CommandHandling/SerializableCommand';
 import { SerializableAction } from '../../Redux/SerializableAction';
 
@@ -6,31 +6,46 @@ import { SerializerInterface } from '../../Serializer/SerializerInterface';
 import { SerializationError } from '../Error/SerializationError';
 import { ClientGatewayInterface } from '../ClientGatewayInterface';
 import { MalformedSerializableCommandError } from '../Error/MalformedSerializableCommandError';
-import { mergeMap, share } from 'rxjs/operators';
+import { filter, first, mapTo, mergeMap, share } from 'rxjs/operators';
 import { deserializeAction } from '../Operators/deserializeAction';
 import { EntityMetadata } from '../../Redux/EntityMetadata';
 
 export class ClientSocketIOGateway implements ClientGatewayInterface {
 
   private readonly actions$: Observable<SerializableAction>;
+  private readonly connected$: Observable<Observable<SerializableAction>>;
 
-  constructor(private socket: SocketIOClient.Emitter,
+  constructor(private socket: SocketIOClient.Socket,
               private serializer: SerializerInterface) {
     const serializedAction$ = fromEvent<string>(this.socket, 'action');
-    const errors$ = fromEvent<unknown>(this.socket, 'error');
+    const errors$ = merge(
+      fromEvent<unknown>(this.socket, 'error'),
+    ).pipe(
+      mergeMap((error) => throwError(error)),
+      share(),
+    );
+
     this.actions$ = merge(
-      errors$.pipe(
-        mergeMap((error) => throwError(error)),
-      ),
+      errors$,
       serializedAction$.pipe(
         deserializeAction(serializer),
         share(),
       ),
     );
+
+    this.connected$ = merge(
+      of(this.socket.connected).pipe(filter(connected => connected)),
+      fromEvent<unknown>(this.socket, 'connect').pipe(),
+      errors$,
+    )
+      .pipe(
+        first(),
+        mapTo(this.actions$),
+      );
   }
 
-  public listen(): Observable<SerializableAction> {
-    return this.actions$;
+  public listen(): Promise<Observable<SerializableAction>> {
+    return this.connected$.toPromise();
   }
 
   public async emit(command: SerializableCommand, metadata: EntityMetadata): Promise<void> {

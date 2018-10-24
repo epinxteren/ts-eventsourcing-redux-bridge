@@ -5,7 +5,7 @@ import { ServerGatewayMetadata } from '../../Gateway/ValueObject/ServerGatewayMe
 export class MissingEntityMetadataError extends Error {
 
   public static forGatewayMessage(message: ServerGatewayMessage<ServerGatewayMetadata<any>>) {
-    return new this(`Gateway message ${ClassUtil.nameOffInstance(message.command)} is missing entity name`);
+    return new this(`Gateway message ${ClassUtil.nameOffInstance(message.payload)} is missing entity name`);
   }
 
 }

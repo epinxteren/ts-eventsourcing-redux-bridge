@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { CommandAction } from '../../CommandHandling/CommandAction';
+import { AnyAction } from 'redux';
 
-export function ofType(...type: string[]) {
-  return (input: Observable<CommandAction>) => {
+export function ofType<T extends AnyAction>(...type: string[]) {
+  return (input: Observable<T>) => {
     return input.pipe(filter(action => type.indexOf(action.type) >= 0));
   };
 }

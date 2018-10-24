@@ -1,6 +1,6 @@
 import { EntityMetadata, hasEntityMetadata, matchActionTypeEntity } from '../Redux/EntityMetadata';
 import { SerializableCommand } from './SerializableCommand';
-import { InvalidTypeError } from '../Redux/Error/InvalidTypeError';
+import { InvalidCommandTypeError } from './Error/InvalidCommandTypeError';
 import { CommandConstructor } from 'ts-eventsourcing/CommandHandling/Command';
 
 export interface CommandAction<T extends SerializableCommand = SerializableCommand, Metadata = {}> {
@@ -21,13 +21,13 @@ export function isCommandActionOfType(action: any, type: (entity: string) => str
 
 export function asCommandAction<T extends SerializableCommand = SerializableCommand, Metadata = {}>(
   action: any,
-  Command: CommandConstructor,
+  Command: CommandConstructor<T>,
 ): CommandAction<T, Metadata> {
   if (!isCommandAction(action)) {
-    throw InvalidTypeError.actionIsNotAnCommandAction();
+    throw InvalidCommandTypeError.actionIsNotAnCommandAction();
   }
   if (!(action.command instanceof Command)) {
-    throw InvalidTypeError.doesNotMatchCommand(action.command, Command);
+    throw InvalidCommandTypeError.doesNotMatchCommand(action.command, Command);
   }
   return action as any;
 }

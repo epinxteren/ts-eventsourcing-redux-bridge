@@ -1,22 +1,22 @@
 import { Observable, of } from 'rxjs';
 import { catchError, map, mergeMap, share } from 'rxjs/operators';
-import { commandHandledFailed, commandHandledSuccessfully } from '../actions';
+import { queryHandledFailed, queryHandledSuccessfully } from '../actions';
 import { ServerGatewayMessage } from '../../Gateway/ValueObject/ServerGatewayMessage';
 import { ServerGatewayMetadata } from '../../Gateway/ValueObject/ServerGatewayMetadata';
-import { fromClientCommand } from './fromClientCommand';
+import { fromClientQuery } from './fromClientQuery';
 import { hasEntityMetadata } from '../../Redux/EntityMetadata';
 import { MissingEntityMetadataError } from '../../Redux/Error/MissingEntityMetadataError';
-import { CommandAction } from '../CommandAction';
+import { QueryAction } from '../QueryAction';
 
 /**
  * Emit success or error action on client gateway.
  */
-export function emitCommandHandlerResponseOrErrorToClientGateway<T extends ServerGatewayMessage<ServerGatewayMetadata<any>>>(
+export function emitQueryHandlerResponseOrErrorToClientGateway<T extends ServerGatewayMessage<ServerGatewayMetadata<any>>>(
   handleMessages$: (input: Observable<T>) => Observable<unknown>,
 ) {
-  return (input: Observable<T>): Observable<CommandAction> => {
+  return (input: Observable<T>): Observable<QueryAction> => {
     return input.pipe(
-      fromClientCommand((clientGateway, message) => {
+      fromClientQuery((clientGateway, message) => {
         return () => {
           const response$ = handleMessages$(of(message)).pipe(share());
           return response$
@@ -25,8 +25,8 @@ export function emitCommandHandlerResponseOrErrorToClientGateway<T extends Serve
                 if (!hasEntityMetadata(message)) {
                   throw MissingEntityMetadataError.forGatewayMessage(message);
                 }
-                const successAction = commandHandledSuccessfully(
-                  message.payload,
+                const successAction = queryHandledSuccessfully(
+                  message.query,
                   message.metadata.entity,
                   response,
                 );
@@ -37,8 +37,8 @@ export function emitCommandHandlerResponseOrErrorToClientGateway<T extends Serve
                 if (!hasEntityMetadata(message)) {
                   throw MissingEntityMetadataError.forGatewayMessage(message);
                 }
-                const failedAction = commandHandledFailed(
-                  message.payload,
+                const failedAction = queryHandledFailed(
+                  message.query,
                   message.metadata.entity,
                   error,
                 );
