@@ -9,6 +9,8 @@ import { MalformedSerializableCommandError } from '../Error/MalformedSerializabl
 import { filter, first, mapTo, mergeMap, share } from 'rxjs/operators';
 import { deserializeAction } from '../Operators/deserializeAction';
 import { EntityMetadata } from '../../Redux/EntityMetadata';
+import { SerializableQuery } from '../../QueryHandling/SerializableQuery';
+import { MalformedSerializableQueryError } from '../Error/MalformedSerializableQueryError';
 
 export class ClientSocketIOGateway implements ClientGatewayInterface {
 
@@ -48,7 +50,17 @@ export class ClientSocketIOGateway implements ClientGatewayInterface {
     return this.connected$.toPromise();
   }
 
-  public async emit(command: SerializableCommand, metadata: EntityMetadata): Promise<void> {
+  public async emit(serializable: SerializableCommand | SerializableQuery, metadata: EntityMetadata): Promise<void> {
+    if (serializable instanceof SerializableCommand) {
+      return this.emitCommand(serializable, metadata);
+    }
+    if (serializable instanceof SerializableQuery) {
+      return this.emitQuery(serializable, metadata);
+    }
+    throw SerializationError.couldNotBeSerialized(serializable);
+  }
+
+  protected async emitCommand(command: SerializableCommand, metadata: EntityMetadata) {
     let serialized;
     if (!SerializableCommand.isSerializableCommand(command)) {
       throw MalformedSerializableCommandError.notASerializableCommand(command);
@@ -59,6 +71,19 @@ export class ClientSocketIOGateway implements ClientGatewayInterface {
       throw SerializationError.commandCouldNotBeSerialized(command, e);
     }
     this.socket.emit('command', serialized);
+  }
+
+  protected async emitQuery(query: SerializableQuery, metadata: EntityMetadata) {
+    let serialized;
+    if (!SerializableQuery.isSerializableQuery(query)) {
+      throw MalformedSerializableQueryError.notASerializableQuery(query);
+    }
+    try {
+      serialized = this.serializer.serialize({ query, metadata });
+    } catch (e) {
+      throw SerializationError.queryCouldNotBeSerialized(query, e);
+    }
+    this.socket.emit('query', serialized);
   }
 
 }
