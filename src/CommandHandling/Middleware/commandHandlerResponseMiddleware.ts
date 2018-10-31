@@ -38,13 +38,14 @@ export function commandHandlerResponseMiddleware<D extends Dispatch = Dispatch, 
 
     if (isCommandStatusSubscribable(action)) {
       const entity = action.metadata.entity;
+      const command = action.command;
       const commandsForEntity$: Observable<CommandAction> = commandActions$.pipe(
         withEntityName(entity),
         share(),
       );
 
       const response$ = commandsForEntity$.pipe(
-        ofType(COMMAND_SUCCEEDED(entity)),
+        ofType(COMMAND_SUCCEEDED(entity, command)),
         take(1),
         map((nextCommandAction) => {
           return nextCommandAction.metadata.response;
@@ -57,8 +58,8 @@ export function commandHandlerResponseMiddleware<D extends Dispatch = Dispatch, 
         timeout(timeoutTime),
         // Or throw when one of the following event are given.
         ofType(
-          COMMAND_TRANSMISSION_FAILED(entity),
-          COMMAND_FAILED(entity),
+          COMMAND_TRANSMISSION_FAILED(entity, command),
+          COMMAND_FAILED(entity, command),
         ),
         concatMap((nextCommandAction) => {
           return throwError(nextCommandAction.metadata.error);

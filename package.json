@@ -63,7 +63,7 @@
     "socket.io-client": "^2.1.1",
     "transit-immutable-js": "^0.7.0",
     "transit-js": "^0.8.861",
-    "ts-eventsourcing": "^1.1.10",
+    "ts-eventsourcing": "^1.1.11",
     "uuid-validate": "^0.0.3"
   }
 }

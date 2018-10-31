@@ -1,5 +1,5 @@
 import { SerializableAction } from '../SerializableAction';
-import { hasEntityMetadata, typeWithEntity, typeWithEntityFactory } from '../EntityMetadata';
+import { hasEntityMetadata, actionTypeWithEntity, actionTypeWithEntityFactory } from '../EntityMetadata';
 
 it('Should know when its has valid entity metadata', () => {
   const action: SerializableAction = {
@@ -21,11 +21,11 @@ it('Should know when its has valid entity metadata', () => {
 });
 
 it('Can create entity names', () => {
-  expect(typeWithEntity('bought', 'PRODUCTS')).toEqual('[PRODUCTS] bought');
-  expect(typeWithEntity('login', 'USER')).toEqual('[USER] login');
+  expect(actionTypeWithEntity('bought', 'PRODUCTS')).toEqual('[PRODUCTS] bought');
+  expect(actionTypeWithEntity('login', 'USER')).toEqual('[USER] login');
 });
 
 it('Can create entity names, by factory', () => {
-  expect(typeWithEntityFactory('bought')('PRODUCTS')).toEqual('[PRODUCTS] bought');
-  expect(typeWithEntityFactory('login')('USER')).toEqual('[USER] login');
+  expect(actionTypeWithEntityFactory('bought')('PRODUCTS')).toEqual('[PRODUCTS] bought');
+  expect(actionTypeWithEntityFactory('login')('USER')).toEqual('[USER] login');
 });

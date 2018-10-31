@@ -38,13 +38,14 @@ export function queryHandlerResponseMiddleware<D extends Dispatch = Dispatch, S 
 
     if (isQueriestatusSubscribable(action)) {
       const entity = action.metadata.entity;
+      const query = action.query;
       const queriesForEntity$: Observable<QueryAction> = queryActions$.pipe(
         withEntityName(entity),
         share(),
       );
 
       const response$ = queriesForEntity$.pipe(
-        ofType(QUERY_SUCCEEDED(entity)),
+        ofType(QUERY_SUCCEEDED(entity, query)),
         take(1),
         map((nextQueryAction) => {
           return nextQueryAction.metadata.response;
@@ -57,8 +58,8 @@ export function queryHandlerResponseMiddleware<D extends Dispatch = Dispatch, S 
         timeout(timeoutTime),
         // Or throw when one of the following event are given.
         ofType(
-          QUERY_TRANSMISSION_FAILED(entity),
-          QUERY_FAILED(entity),
+          QUERY_TRANSMISSION_FAILED(entity, query),
+          QUERY_FAILED(entity, query),
         ),
         concatMap((nextQueryAction) => {
           return throwError(nextQueryAction.metadata.error);

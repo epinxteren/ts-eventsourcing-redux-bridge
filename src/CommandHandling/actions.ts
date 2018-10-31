@@ -1,35 +1,35 @@
 import { SerializableCommand } from './SerializableCommand';
-import { CommandAction } from './CommandAction';
-import { typeWithEntityFactory } from '../Redux/EntityMetadata';
+import { CommandAction, commandActionTypeFactory } from './CommandAction';
+import { CommandConstructor } from 'ts-eventsourcing/CommandHandling/Command';
 
 /**
  * Return action for sending the command.
  *
  * The action will be picked up by the middleware {@see commandMiddleware}
  */
-export const COMMAND_TRANSMITTING = typeWithEntityFactory('command transmitting');
+export const COMMAND_TRANSMITTING = commandActionTypeFactory('command transmitting');
 
 /**
  * The command is transmitted successfully.
  *
  * This will **not** say the command is handled successfully!.
  */
-export const COMMAND_TRANSMITTED_SUCCESSFULLY = typeWithEntityFactory('command transmitted successfully');
+export const COMMAND_TRANSMITTED_SUCCESSFULLY = commandActionTypeFactory('command transmitted successfully');
 
 /**
  * The command transmission failed.
  */
-export const COMMAND_TRANSMISSION_FAILED = typeWithEntityFactory('command transmission failed');
+export const COMMAND_TRANSMISSION_FAILED = commandActionTypeFactory('command transmission failed');
 
 /**
  * The command failed.
  */
-export const COMMAND_FAILED = typeWithEntityFactory('command handling failed');
+export const COMMAND_FAILED = commandActionTypeFactory('command handling failed');
 
 /**
  * The command succeeded.
  */
-export const COMMAND_SUCCEEDED = typeWithEntityFactory('command handling succeeded');
+export const COMMAND_SUCCEEDED = commandActionTypeFactory('command handling succeeded');
 
 /**
  * Send a command.
@@ -42,7 +42,7 @@ export const COMMAND_SUCCEEDED = typeWithEntityFactory('command handling succeed
  */
 export function sendCommand(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}): CommandAction {
   return {
-    type: COMMAND_TRANSMITTING(entity),
+    type: COMMAND_TRANSMITTING(entity, command),
     command,
     metadata: {
       entity,
@@ -97,7 +97,7 @@ export function listenToCommandHandler<T>(command: CommandAction<any>): Promise<
 
 export function commandTransmittedSuccessfully(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}): CommandAction {
   return {
-    type: COMMAND_TRANSMITTED_SUCCESSFULLY(entity),
+    type: COMMAND_TRANSMITTED_SUCCESSFULLY(entity, command),
     command,
     metadata: {
       entity,
@@ -108,7 +108,7 @@ export function commandTransmittedSuccessfully(command: SerializableCommand, ent
 
 export function commandTransmissionFailed(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}): CommandAction {
   return {
-    type: COMMAND_TRANSMISSION_FAILED(entity),
+    type: COMMAND_TRANSMISSION_FAILED(entity, command),
     command,
     metadata: {
       entity,
@@ -119,7 +119,7 @@ export function commandTransmissionFailed(command: SerializableCommand, entity: 
 
 export function commandHandledSuccessfully(command: SerializableCommand, entity: string, response: unknown, metadata: { [key: string]: any } = {}): CommandAction {
   return {
-    type: COMMAND_SUCCEEDED(entity),
+    type: COMMAND_SUCCEEDED(entity, command),
     command,
     metadata: {
       response,
@@ -131,12 +131,25 @@ export function commandHandledSuccessfully(command: SerializableCommand, entity:
 
 export function commandHandledFailed(command: SerializableCommand, entity: string, error: string, metadata: { [key: string]: any } = {}): CommandAction {
   return {
-    type: COMMAND_FAILED(entity),
+    type: COMMAND_FAILED(entity, command),
     command,
     metadata: {
       error,
       entity,
       ...metadata,
     },
+  };
+}
+
+/**
+ * Convenience function to get command types for a given command.
+ */
+export function commandHandelingActionTypes(command: CommandConstructor, entity: string) {
+  return {
+    transmitting: COMMAND_TRANSMITTING(entity, command),
+    transmittingSuccessfully: COMMAND_TRANSMITTED_SUCCESSFULLY(entity, command),
+    transmittingFailed: COMMAND_TRANSMISSION_FAILED(entity, command),
+    commandFailed: COMMAND_FAILED(entity, command),
+    commandSucceeded: COMMAND_SUCCEEDED(entity, command),
   };
 }

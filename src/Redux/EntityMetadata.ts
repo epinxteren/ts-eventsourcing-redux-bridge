@@ -16,13 +16,13 @@ export function hasEntityMetadata(action: any): action is AnyAction & { metadata
     typeof action.metadata.entity === 'string';
 }
 
-export function typeWithEntity(type: string, entity: EntityName) {
+export function actionTypeWithEntity(type: string, entity: EntityName) {
   return `[${entity}] ${type}`;
 }
 
-export function typeWithEntityFactory(type: string) {
+export function actionTypeWithEntityFactory(type: string) {
   return (entity: EntityName) => {
-    return typeWithEntity(type, entity);
+    return actionTypeWithEntity(type, entity);
   };
 }
 
@@ -33,5 +33,5 @@ export function matchActionTypeEntity(action: any, type: string | ((entity: Enti
   if (typeof type === 'function') {
     return action.type === type(action.metadata.entity);
   }
-  return typeWithEntity(type, action.metadata.entity) !== action.type;
+  return actionTypeWithEntity(type, action.metadata.entity) !== action.type;
 }

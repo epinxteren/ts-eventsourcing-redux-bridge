@@ -3,7 +3,6 @@ import { SerializableAction } from '../../../Redux/SerializableAction';
 import { SerializableCommand } from '../../../CommandHandling/SerializableCommand';
 import { SerializerInterface } from '../../../Serializer/SerializerInterface';
 import { SerializationError } from '../../Error/SerializationError';
-import { MalformedSerializableCommandError } from '../../Error/MalformedSerializableCommandError';
 
 class DoSomethingCommand extends SerializableCommand {
 
@@ -104,5 +103,5 @@ it('Can only emit valid commands', async () => {
     }),
   };
   const gateway = new ClientSocketIOGateway(emitter, serializer);
-  await expect(gateway.emit('something', { entity: 'test' })).rejects.toEqual(MalformedSerializableCommandError.notASerializableCommand('something'));
+  await expect(gateway.emit('something', { entity: 'test' })).rejects.toEqual(SerializationError.couldNotBeSerialized('Something'));
 });

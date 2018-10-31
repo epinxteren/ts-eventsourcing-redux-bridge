@@ -1,35 +1,34 @@
 import { SerializableQuery } from './SerializableQuery';
-import { QueryAction } from './QueryAction';
-import { typeWithEntityFactory } from '../Redux/EntityMetadata';
+import { QueryAction, queryActionTypeFactory } from './QueryAction';
 
 /**
  * Return action for sending the query.
  *
  * The action will be picked up by the middleware {@see queryMiddleware}
  */
-export const QUERY_TRANSMITTING = typeWithEntityFactory('query transmitting');
+export const QUERY_TRANSMITTING = queryActionTypeFactory('query transmitting');
 
 /**
  * The query is transmitted successfully.
  *
  * This will **not** say the query is handled successfully!.
  */
-export const QUERY_TRANSMITTED_SUCCESSFULLY = typeWithEntityFactory('query transmitted successfully');
+export const QUERY_TRANSMITTED_SUCCESSFULLY = queryActionTypeFactory('query transmitted successfully');
 
 /**
  * The query transmission failed.
  */
-export const QUERY_TRANSMISSION_FAILED = typeWithEntityFactory('query transmission failed');
+export const QUERY_TRANSMISSION_FAILED = queryActionTypeFactory('query transmission failed');
 
 /**
  * The query failed.
  */
-export const QUERY_FAILED = typeWithEntityFactory('query handling failed');
+export const QUERY_FAILED = queryActionTypeFactory('query handling failed');
 
 /**
  * The query succeeded.
  */
-export const QUERY_SUCCEEDED = typeWithEntityFactory('query handling succeeded');
+export const QUERY_SUCCEEDED = queryActionTypeFactory('query handling succeeded');
 
 /**
  * Send a query.
@@ -42,7 +41,7 @@ export const QUERY_SUCCEEDED = typeWithEntityFactory('query handling succeeded')
  */
 export function sendQuery(query: SerializableQuery, entity: string, metadata: { [key: string]: any } = {}): QueryAction {
   return {
-    type: QUERY_TRANSMITTING(entity),
+    type: QUERY_TRANSMITTING(entity, query),
     query,
     metadata: {
       entity,
@@ -97,7 +96,7 @@ export function listenToQueryHandler<T>(query: QueryAction<any>): Promise<T> {
 
 export function queryTransmittedSuccessfully(query: SerializableQuery, entity: string, metadata: { [key: string]: any } = {}): QueryAction {
   return {
-    type: QUERY_TRANSMITTED_SUCCESSFULLY(entity),
+    type: QUERY_TRANSMITTED_SUCCESSFULLY(entity, query),
     query,
     metadata: {
       entity,
@@ -108,7 +107,7 @@ export function queryTransmittedSuccessfully(query: SerializableQuery, entity: s
 
 export function queryTransmissionFailed(query: SerializableQuery, entity: string, metadata: { [key: string]: any } = {}): QueryAction {
   return {
-    type: QUERY_TRANSMISSION_FAILED(entity),
+    type: QUERY_TRANSMISSION_FAILED(entity, query),
     query,
     metadata: {
       entity,
@@ -119,7 +118,7 @@ export function queryTransmissionFailed(query: SerializableQuery, entity: string
 
 export function queryHandledSuccessfully(query: SerializableQuery, entity: string, response: unknown, metadata: { [key: string]: any } = {}): QueryAction {
   return {
-    type: QUERY_SUCCEEDED(entity),
+    type: QUERY_SUCCEEDED(entity, query),
     query,
     metadata: {
       response,
@@ -131,7 +130,7 @@ export function queryHandledSuccessfully(query: SerializableQuery, entity: strin
 
 export function queryHandledFailed(query: SerializableQuery, entity: string, error: string, metadata: { [key: string]: any } = {}): QueryAction {
   return {
-    type: QUERY_FAILED(entity),
+    type: QUERY_FAILED(entity, query),
     query,
     metadata: {
       error,

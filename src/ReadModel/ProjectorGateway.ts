@@ -3,7 +3,7 @@ import { StoreRepositoryInterface } from './StoreRepositoryInterface';
 import { SerializableAction } from '../Redux/SerializableAction';
 import { DomainEventAction } from '../EventHandling/DomainEventAction';
 import { DomainEventMetadata } from '../Redux/DomainEventMetadata';
-import { typeWithEntity } from '../Redux/EntityMetadata';
+import { actionTypeWithEntity } from '../Redux/EntityMetadata';
 import { EntityName } from '../ValueObject/EntityName';
 import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
 import { DomainEvent } from 'ts-eventsourcing/Domain/DomainEvent';
@@ -52,7 +52,7 @@ export class ProjectorGateway<State, Id extends Identity, Action extends Seriali
   ) {
     const domainEventMetadata = this.createDomainEventMetadata(model, message, additionalMetadata);
     const action: DomainEventAction<DomainEvent, Id, typeof domainEventMetadata> = {
-      type: typeWithEntity(ClassUtil.nameOffInstance(message.payload), domainEventMetadata.entity),
+      type: actionTypeWithEntity(ClassUtil.nameOffInstance(message.payload), domainEventMetadata.entity),
       event: message.payload,
       metadata: domainEventMetadata,
     };

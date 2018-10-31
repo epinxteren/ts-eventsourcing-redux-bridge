@@ -7,7 +7,7 @@
  ## Features
  - Using Typescript
  - Jest for testing
- - Serialisation of actions/commands
+ - Serialisation of actions/commands and immutable objects
  - Command and Queries server <--> client communication
  - Support different gateways (sockets io with multiple namespace support)
  

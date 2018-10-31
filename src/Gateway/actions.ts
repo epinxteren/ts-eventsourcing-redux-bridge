@@ -1,13 +1,13 @@
-import { typeWithEntityFactory } from '../Redux/EntityMetadata';
+import { actionTypeWithEntityFactory } from '../Redux/EntityMetadata';
 import { EntityName } from '../ValueObject/EntityName';
 import { GatewayAction } from './GatewayAction';
 
-export const GATEWAY_OPEN = typeWithEntityFactory('gateway open');
-export const GATEWAY_ERROR = typeWithEntityFactory('gateway error');
-export const GATEWAY_CLOSE = typeWithEntityFactory('gateway close');
+export const GATEWAY_OPEN = actionTypeWithEntityFactory('gateway open');
+export const GATEWAY_ERROR = actionTypeWithEntityFactory('gateway error');
+export const GATEWAY_CLOSE = actionTypeWithEntityFactory('gateway close');
 
-export const GATEWAY_IS_OPEN = typeWithEntityFactory('gateway is open');
-export const GATEWAY_IS_CLOSED = typeWithEntityFactory('gateway is closed');
+export const GATEWAY_IS_OPEN = actionTypeWithEntityFactory('gateway is open');
+export const GATEWAY_IS_CLOSED = actionTypeWithEntityFactory('gateway is closed');
 
 export function gatewayOpen<T>(entity: EntityName, gate: T, metadata: { [key: string]: any } = {}): GatewayAction<T> {
   return {

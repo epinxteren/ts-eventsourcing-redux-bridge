@@ -4,7 +4,7 @@ import { DomainEvent, DomainEventConstructor } from 'ts-eventsourcing/Domain/Dom
 import { Identity, IdentityConstructor } from 'ts-eventsourcing/ValueObject/Identity';
 import { EntityName } from '../ValueObject/EntityName';
 import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
-import { typeWithEntity } from '../Redux/EntityMetadata';
+import { actionTypeWithEntity } from '../Redux/EntityMetadata';
 import { InvalidTypeError } from './Error/InvalidTypeError';
 
 export interface DomainEventAction<Event extends DomainEvent,
@@ -29,5 +29,5 @@ export function asDomainEventAction<Event extends DomainEvent, Id extends Identi
 }
 
 export function domainEventActionType(domainEventClass: DomainEventConstructor<any>, entity: EntityName) {
-  return typeWithEntity(ClassUtil.nameOffConstructor(domainEventClass), entity);
+  return actionTypeWithEntity(ClassUtil.nameOffConstructor(domainEventClass), entity);
 }
