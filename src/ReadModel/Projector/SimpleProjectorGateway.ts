@@ -8,7 +8,7 @@ export class SimpleProjectorGateway<
   State,
   Id extends Identity = Identity,
   Metadata extends ReadModelMetadata<Id> = ReadModelMetadata<Id>,
-  Action extends ReadModelAction<Id, Metadata> = ReadModelAction<Id, Metadata>> implements ProjectorGatewayInterface<Id, Action> {
+  Action extends ReadModelAction<Id, Metadata> = ReadModelAction<Id, Metadata>> implements ProjectorGatewayInterface<Id, Metadata, Action> {
 
   constructor(protected readonly repository: StoreRepositoryInterface<State, Id, Metadata, Action>,
               protected readonly gateway: ServerGatewayInterface) {

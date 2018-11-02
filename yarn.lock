@@ -4355,10 +4355,10 @@ trim-right@^1.0.1:
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
 
-ts-eventsourcing@^1.1.11:
-  version "1.1.11"
-  resolved "https://registry.yarnpkg.com/ts-eventsourcing/-/ts-eventsourcing-1.1.11.tgz#bd5470e1e7a4879e5907c8f49e4fdd3d5bdbc110"
-  integrity sha512-dHmU9wyVgwWhBPMLAUg7RoX/DPAHptTahoAmDA8vyfvomrKHe8TvFVFm4YJ9j0ZcUd0a1XX/CrBmcBmcY6C7LA==
+ts-eventsourcing@^1.1.12:
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/ts-eventsourcing/-/ts-eventsourcing-1.1.12.tgz#45caf2a3697b2ce68a7959de6edfa1c2dd3f2f83"
+  integrity sha512-LXK9v3GEve2SYM77Fa/EP2unkujalJQ45LipmX0R9qnahM6225KPwIC4ojiDEGzjUfzhhWiwUN2ayL3y0e7B0g==
   dependencies:
     "@types/uuid" "^3.4.3"
     moment "^2.22.2"

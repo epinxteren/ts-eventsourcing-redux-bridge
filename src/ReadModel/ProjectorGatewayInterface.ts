@@ -1,5 +1,5 @@
-import { SerializableAction } from '../Redux/SerializableAction';
 import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
+import { ReadModelAction, ReadModelMetadata } from './ReadModelAction';
 
 /**
  * For passing events between the projector and redux store.
@@ -8,7 +8,10 @@ import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
  * 2. Save the new State to read model repository.
  * 3. Transmit the action by the gateway.
  */
-export interface ProjectorGatewayInterface<Id extends Identity, Action extends SerializableAction = SerializableAction> {
+export interface ProjectorGatewayInterface<
+  Id extends Identity,
+  Metadata extends ReadModelMetadata<Id> = ReadModelMetadata<Id>,
+  Action extends ReadModelAction<Id, Metadata> = ReadModelAction<Id, Metadata>> {
   /**
    * For passing any action.
    */
