@@ -1,5 +1,7 @@
 import { SerializableQuery } from './SerializableQuery';
 import { QueryAction, queryActionTypeFactory } from './QueryAction';
+import { EntityName } from '../ValueObject/EntityName';
+import { QueryConstructor } from 'ts-eventsourcing/QueryHandling/Query';
 
 /**
  * Return action for sending the query.
@@ -23,7 +25,7 @@ export const QUERY_TRANSMISSION_FAILED = queryActionTypeFactory('query transmiss
 /**
  * The query failed.
  */
-export const QUERY_FAILED = queryActionTypeFactory('query handling failed');
+export const QUERY_FAILED = queryActionTypeFactory('query failed');
 
 /**
  * The query succeeded.
@@ -137,5 +139,18 @@ export function queryHandledFailed(query: SerializableQuery, entity: string, err
       entity,
       ...metadata,
     },
+  };
+}
+
+/**
+ * Convenience function to get query action types.
+ */
+export function queryHandelingActionTypes(entity: EntityName, query: QueryConstructor) {
+  return {
+    transmitting: QUERY_TRANSMITTING(entity, query),
+    transmittingSuccessfully: QUERY_TRANSMITTED_SUCCESSFULLY(entity, query),
+    transmittingFailed: QUERY_TRANSMISSION_FAILED(entity, query),
+    queryFailed: QUERY_FAILED(entity, query),
+    querySucceeded: QUERY_SUCCEEDED(entity, query),
   };
 }

@@ -1,7 +1,6 @@
 import { actionTypeWithEntityFactory } from '../Redux/EntityMetadata';
 import { EntityName } from '../ValueObject/EntityName';
 import { GatewayAction } from './GatewayAction';
-
 export const GATEWAY_OPEN = actionTypeWithEntityFactory('gateway open');
 export const GATEWAY_ERROR = actionTypeWithEntityFactory('gateway error');
 export const GATEWAY_CLOSE = actionTypeWithEntityFactory('gateway close');

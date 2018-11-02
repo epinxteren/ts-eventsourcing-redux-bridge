@@ -1,15 +1,35 @@
-import { SerializableAction } from '../../Redux/SerializableAction';
 import { Store } from 'redux';
 import { ReadModel } from 'ts-eventsourcing/ReadModel/ReadModel';
 import { Playhead } from '../../ValueObject/Playhead';
 import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
+import { asReadModelAction, ReadModelAction, ReadModelMetadata } from '../ReadModelAction';
+import { ActionStream } from '../ActionStream';
+import { SimpleActionStream } from '../SimpleActionStream';
 
-export class StoreReadModel<State, Id extends Identity = Identity, Action extends SerializableAction = SerializableAction> implements ReadModel {
+export class StoreReadModel<State,
+  Id extends Identity = Identity,
+  Metadata extends ReadModelMetadata<Id> = ReadModelMetadata<Id>,
+  Action extends ReadModelAction<Id, Metadata> = ReadModelAction<Id, Metadata>> implements ReadModel {
+
+  private uncommittedActions: Action[] = [];
 
   constructor(private readonly id: Id,
               private readonly store: Store<State, Action>,
-              private readonly playhead: Playhead) {
-
+              private lastPlayhead: Playhead) {
+    const dispatch = this.store.dispatch;
+    store.dispatch = (action) => {
+      const readModelAction = asReadModelAction<Id, Metadata>(action) as Action;
+      const state = store.getState();
+      const result = dispatch.call(store, action);
+      const newState = store.getState();
+      if (state === newState) {
+        return result;
+      }
+      this.lastPlayhead = this.lastPlayhead + 1;
+      readModelAction.metadata.playhead = this.lastPlayhead;
+      this.uncommittedActions.push(readModelAction);
+      return result;
+    };
   }
 
   public getId(): Id {
@@ -21,10 +41,13 @@ export class StoreReadModel<State, Id extends Identity = Identity, Action extend
   }
 
   public getPlayhead(): Playhead {
-    return this.playhead;
+    return this.lastPlayhead;
   }
 
-  public withIncreasedPlayhead(): StoreReadModel<State, Id, Action> {
-    return new StoreReadModel(this.id, this.store, this.playhead + 1);
+  public getUncommittedActions(): ActionStream<Action> {
+    const stream = SimpleActionStream.of(this.uncommittedActions);
+    this.uncommittedActions = [];
+    return stream;
   }
+
 }

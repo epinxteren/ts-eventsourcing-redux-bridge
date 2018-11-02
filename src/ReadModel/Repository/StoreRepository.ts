@@ -2,23 +2,25 @@ import { StoreReadModel } from '../Model/StoreReadModel';
 import { StoreRepositoryInterface } from '../StoreRepositoryInterface';
 import { StoreFactory } from '../../Redux/Store/StoreFactory';
 import { StateReadModel } from '../Model/StateReadModel';
-import { SerializableAction } from '../../Redux/SerializableAction';
 import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
 import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
+import { ReadModelAction, ReadModelMetadata } from '../ReadModelAction';
 
-export class StoreRepository<State,
+export class StoreRepository<
+  State,
   Id extends Identity = Identity,
-  Action extends SerializableAction = SerializableAction> implements StoreRepositoryInterface<State, Id, Action> {
+  Metadata extends ReadModelMetadata<Id> = ReadModelMetadata<Id>,
+  Action extends ReadModelAction<Id, Metadata> = ReadModelAction<Id, Metadata>> implements StoreRepositoryInterface<State, Id, Metadata, Action> {
 
   constructor(private readonly stateRepository: Repository<StateReadModel<State, Id>>, private readonly storeFactory: StoreFactory<State, Action>) {
 
   }
 
-  public async create(id: Id): Promise<StoreReadModel<State, Id, Action>> {
-    return new StoreReadModel<State, Id, Action>(id, this.storeFactory.create(), 0);
+  public async create(id: Id): Promise<StoreReadModel<State, Id, Metadata, Action>> {
+    return new StoreReadModel<State, Id, Metadata, Action>(id, this.storeFactory.create(), 0);
   }
 
-  public save(model: StoreReadModel<State, Id, Action>): Promise<void> {
+  public save(model: StoreReadModel<State, Id, Metadata, Action>): Promise<void> {
     return this.stateRepository.save(new StateReadModel<State, Id>(
       model.getId(),
       model.getStore().getState(),
@@ -30,12 +32,12 @@ export class StoreRepository<State,
     return this.stateRepository.has(id);
   }
 
-  public async get(id: Id): Promise<StoreReadModel<State, Id, Action>> {
+  public async get(id: Id): Promise<StoreReadModel<State, Id, Metadata, Action>> {
     const data = await this.stateRepository.get(id);
     return this.createStore(data, id);
   }
 
-  public async find(id: Id): Promise<null | StoreReadModel<State, Id, Action>> {
+  public async find(id: Id): Promise<null | StoreReadModel<State, Id, Metadata, Action>> {
     const data = await this.stateRepository.find(id);
     if (data === null) {
       return null;
@@ -49,7 +51,7 @@ export class StoreRepository<State,
 
   private createStore(data: StateReadModel<State, Id>, id: Id) {
     const store = this.storeFactory.createFromState(data.getState() as any);
-    return new StoreReadModel(id, store, data.getPlayhead());
+    return new StoreReadModel<State, Id, Metadata, Action>(id, store, data.getPlayhead());
   }
 
 }

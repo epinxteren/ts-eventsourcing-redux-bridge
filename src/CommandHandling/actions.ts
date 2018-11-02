@@ -1,6 +1,7 @@
 import { SerializableCommand } from './SerializableCommand';
 import { CommandAction, commandActionTypeFactory } from './CommandAction';
 import { CommandConstructor } from 'ts-eventsourcing/CommandHandling/Command';
+import { EntityName } from '../ValueObject/EntityName';
 
 /**
  * Return action for sending the command.
@@ -142,9 +143,9 @@ export function commandHandledFailed(command: SerializableCommand, entity: strin
 }
 
 /**
- * Convenience function to get command types for a given command.
+ * Convenience function to get command action types.
  */
-export function commandHandelingActionTypes(command: CommandConstructor, entity: string) {
+export function commandHandelingActionTypes(entity: EntityName, command: CommandConstructor) {
   return {
     transmitting: COMMAND_TRANSMITTING(entity, command),
     transmittingSuccessfully: COMMAND_TRANSMITTED_SUCCESSFULLY(entity, command),

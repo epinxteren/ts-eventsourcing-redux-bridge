@@ -28,6 +28,7 @@ export function gatewayMiddleway<T, Metadata extends EntityMetadata = EntityMeta
     if (isGatewayAction<T, Metadata>(action, GATEWAY_OPEN)) {
       const gateway = gatewayFactory(action.gate, action.metadata);
       const entity = action.metadata.entity;
+      const gate = action.gate;
 
       from(gateway.listen()).pipe(
         mergeMap((actions$) => merge(
@@ -41,6 +42,7 @@ export function gatewayMiddleway<T, Metadata extends EntityMetadata = EntityMeta
       )
         .pipe(takeUntil(closeGatewayActions$.pipe(
           withEntityName(entity),
+          filter(nextAction => nextAction.gate === gate),
           take(1),
         )))
         .subscribe(

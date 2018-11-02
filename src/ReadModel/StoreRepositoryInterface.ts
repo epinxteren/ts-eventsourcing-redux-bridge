@@ -1,10 +1,14 @@
 import { StoreReadModel } from './Model/StoreReadModel';
-import { SerializableAction } from '../Redux/SerializableAction';
 import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
 import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
+import { ReadModelAction, ReadModelMetadata } from './ReadModelAction';
 
-export interface StoreRepositoryInterface<State, Id extends Identity = Identity, Action extends SerializableAction = SerializableAction> extends Repository<StoreReadModel<State, Id, Action>> {
+export interface StoreRepositoryInterface<
+  State,
+  Id extends Identity = Identity,
+  Metadata extends ReadModelMetadata<Id> = ReadModelMetadata<Id>,
+  Action extends ReadModelAction<Id, Metadata> = ReadModelAction<Id, Metadata>> extends Repository<StoreReadModel<State, Id, Metadata, Action>> {
 
-  create(id: Id): Promise<StoreReadModel<State, Id, Action>>;
+  create(id: Id): Promise<StoreReadModel<State, Id, Metadata, Action>>;
 
 }
