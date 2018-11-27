@@ -5,10 +5,9 @@ import { timeout, filter, map, share, concatMap, take, takeUntil } from 'rxjs/op
 import {
   COMMAND_FAILED,
   COMMAND_SUCCEEDED,
-  COMMAND_TRANSMISSION_FAILED,
   COMMAND_TRANSMITTING,
 } from '../actions';
-import { CommandAction, isCommandAction, isCommandActionOfType } from '../CommandAction';
+import { CommandAction, CommandResponseAction, isCommandAction, isCommandActionOfType } from '../CommandAction';
 import { withEntityName } from '../../Redux/Operators/EntityMetadata';
 import { ofType } from '../../Redux/Operators/Action';
 
@@ -47,8 +46,9 @@ export function commandHandlerResponseMiddleware<D extends Dispatch = Dispatch, 
       const response$ = commandsForEntity$.pipe(
         ofType(COMMAND_SUCCEEDED(entity, command)),
         take(1),
-        map((nextCommandAction) => {
-          return nextCommandAction.metadata.response;
+        map((nextCommandAction) => nextCommandAction as CommandResponseAction),
+        map((nextCommandAction: CommandResponseAction) => {
+          return nextCommandAction.response;
         }),
         share(),
       );
@@ -58,7 +58,6 @@ export function commandHandlerResponseMiddleware<D extends Dispatch = Dispatch, 
         timeout(timeoutTime),
         // Or throw when one of the following event are given.
         ofType(
-          COMMAND_TRANSMISSION_FAILED(entity, command),
           COMMAND_FAILED(entity, command),
         ),
         concatMap((nextCommandAction) => {

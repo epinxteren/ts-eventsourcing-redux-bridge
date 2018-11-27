@@ -1,3 +1,3 @@
-export interface ClassConstructor {
-  new(...args: any[]): any;
+export interface ClassConstructor<T = any> {
+  new(...args: any[]): T;
 }

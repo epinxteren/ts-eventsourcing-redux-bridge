@@ -26,7 +26,7 @@ export function emitQueryHandlerResponseOrErrorToClientGateway<T extends ServerG
                   throw MissingEntityMetadataError.forGatewayMessage(message);
                 }
                 const successAction = queryHandledSuccessfully(
-                  message.query,
+                  message.payload,
                   message.metadata.entity,
                   response,
                 );
@@ -38,7 +38,7 @@ export function emitQueryHandlerResponseOrErrorToClientGateway<T extends ServerG
                   throw MissingEntityMetadataError.forGatewayMessage(message);
                 }
                 const failedAction = queryHandledFailed(
-                  message.query,
+                  message.payload,
                   message.metadata.entity,
                   error,
                 );

@@ -4,3 +4,5 @@
  * incorrect.
  */
 export type Playhead = number;
+
+export const INITIAL_PLAYHEAD: Playhead = 0;

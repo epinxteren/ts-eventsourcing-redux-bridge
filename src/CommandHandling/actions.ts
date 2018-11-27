@@ -1,5 +1,5 @@
 import { SerializableCommand } from './SerializableCommand';
-import { CommandAction, commandActionTypeFactory } from './CommandAction';
+import { CommandAction, commandActionTypeFactory, CommandResponseAction } from './CommandAction';
 import { CommandConstructor } from 'ts-eventsourcing/CommandHandling/Command';
 import { EntityName } from '../ValueObject/EntityName';
 
@@ -23,9 +23,14 @@ export const COMMAND_TRANSMITTED_SUCCESSFULLY = commandActionTypeFactory('comman
 export const COMMAND_TRANSMISSION_FAILED = commandActionTypeFactory('command transmission failed');
 
 /**
- * The command failed.
+ * The command failed by any means.
  */
-export const COMMAND_FAILED = commandActionTypeFactory('command handling failed');
+export const COMMAND_FAILED = commandActionTypeFactory('command failed');
+
+/**
+ * The command handling failed.
+ */
+export const COMMAND_HANDLING_FAILED = commandActionTypeFactory('command handling failed');
 
 /**
  * The command succeeded.
@@ -107,10 +112,23 @@ export function commandTransmittedSuccessfully(command: SerializableCommand, ent
   };
 }
 
-export function commandTransmissionFailed(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}): CommandAction {
+export function commandTransmissionFailed(command: SerializableCommand, entity: string, error: unknown, metadata: { [key: string]: any } = {}): CommandAction {
   return {
     type: COMMAND_TRANSMISSION_FAILED(entity, command),
     command,
+    metadata: {
+      entity,
+      error,
+      ...metadata,
+    },
+  };
+}
+
+export function commandHandledSuccessfully<T = {}>(command: SerializableCommand, entity: string, response: T, metadata: { [key: string]: any } = {}): CommandResponseAction<typeof command, T> {
+  return {
+    type: COMMAND_SUCCEEDED(entity, command),
+    command,
+    response,
     metadata: {
       entity,
       ...metadata,
@@ -118,12 +136,11 @@ export function commandTransmissionFailed(command: SerializableCommand, entity: 
   };
 }
 
-export function commandHandledSuccessfully(command: SerializableCommand, entity: string, response: unknown, metadata: { [key: string]: any } = {}): CommandAction {
+export function commandFailed(command: SerializableCommand, entity: string, metadata: { [key: string]: any } = {}): CommandAction {
   return {
-    type: COMMAND_SUCCEEDED(entity, command),
+    type: COMMAND_FAILED(entity, command),
     command,
     metadata: {
-      response,
       entity,
       ...metadata,
     },
@@ -132,7 +149,7 @@ export function commandHandledSuccessfully(command: SerializableCommand, entity:
 
 export function commandHandledFailed(command: SerializableCommand, entity: string, error: string, metadata: { [key: string]: any } = {}): CommandAction {
   return {
-    type: COMMAND_FAILED(entity, command),
+    type: COMMAND_HANDLING_FAILED(entity, command),
     command,
     metadata: {
       error,
@@ -151,6 +168,7 @@ export function commandHandelingActionTypes(entity: EntityName, command: Command
     transmittingSuccessfully: COMMAND_TRANSMITTED_SUCCESSFULLY(entity, command),
     transmittingFailed: COMMAND_TRANSMISSION_FAILED(entity, command),
     commandFailed: COMMAND_FAILED(entity, command),
+    commandHandlingFailed: COMMAND_HANDLING_FAILED(entity, command),
     commandSucceeded: COMMAND_SUCCEEDED(entity, command),
   };
 }

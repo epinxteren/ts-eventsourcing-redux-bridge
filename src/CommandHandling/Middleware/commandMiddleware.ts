@@ -1,7 +1,10 @@
 import { AnyAction, Dispatch, MiddlewareAPI } from 'redux';
 import { isCommandActionOfType } from '../CommandAction';
 import {
+  COMMAND_HANDLING_FAILED,
+  COMMAND_TRANSMISSION_FAILED,
   COMMAND_TRANSMITTING,
+  commandFailed,
   commandTransmissionFailed,
   commandTransmittedSuccessfully,
 } from '../actions';
@@ -16,11 +19,13 @@ export function commandMiddleware<D extends Dispatch = Dispatch, S = any, Action
           api.dispatch(commandTransmittedSuccessfully(action.command, action.metadata.entity, action.metadata));
         })
         .catch((error) => {
-          api.dispatch(commandTransmissionFailed(action.command, action.metadata.entity, {
-            ...action.metadata,
-            error,
-          }));
+          api.dispatch(commandTransmissionFailed(action.command, action.metadata.entity, error, action.metadata));
         });
+    }
+    if (
+      isCommandActionOfType(action, COMMAND_HANDLING_FAILED) ||
+      isCommandActionOfType(action, COMMAND_TRANSMISSION_FAILED)) {
+      api.dispatch(commandFailed(action.command, action.metadata.entity, action.metadata));
     }
     return response;
   };

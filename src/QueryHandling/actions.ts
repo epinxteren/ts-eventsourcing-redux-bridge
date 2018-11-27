@@ -1,5 +1,5 @@
 import { SerializableQuery } from './SerializableQuery';
-import { QueryAction, queryActionTypeFactory } from './QueryAction';
+import { QueryAction, queryActionTypeFactory, QueryResponseAction } from './QueryAction';
 import { EntityName } from '../ValueObject/EntityName';
 import { QueryConstructor } from 'ts-eventsourcing/QueryHandling/Query';
 
@@ -23,7 +23,12 @@ export const QUERY_TRANSMITTED_SUCCESSFULLY = queryActionTypeFactory('query tran
 export const QUERY_TRANSMISSION_FAILED = queryActionTypeFactory('query transmission failed');
 
 /**
- * The query failed.
+ * The handling of the query failed.
+ */
+export const QUERY_HANDLING_FAILED = queryActionTypeFactory('query handling failed');
+
+/**
+ * The query failed by any means.
  */
 export const QUERY_FAILED = queryActionTypeFactory('query failed');
 
@@ -107,23 +112,24 @@ export function queryTransmittedSuccessfully(query: SerializableQuery, entity: s
   };
 }
 
-export function queryTransmissionFailed(query: SerializableQuery, entity: string, metadata: { [key: string]: any } = {}): QueryAction {
+export function queryTransmissionFailed(query: SerializableQuery, entity: string, error: unknown, metadata: { [key: string]: any } = {}): QueryAction {
   return {
     type: QUERY_TRANSMISSION_FAILED(entity, query),
     query,
     metadata: {
       entity,
+      error,
       ...metadata,
     },
   };
 }
 
-export function queryHandledSuccessfully(query: SerializableQuery, entity: string, response: unknown, metadata: { [key: string]: any } = {}): QueryAction {
+export function queryHandledSuccessfully<T = any>(query: SerializableQuery, entity: string, response: T, metadata: { [key: string]: any } = {}): QueryResponseAction<typeof query, T> {
   return {
     type: QUERY_SUCCEEDED(entity, query),
     query,
+    response,
     metadata: {
-      response,
       entity,
       ...metadata,
     },
@@ -132,10 +138,21 @@ export function queryHandledSuccessfully(query: SerializableQuery, entity: strin
 
 export function queryHandledFailed(query: SerializableQuery, entity: string, error: string, metadata: { [key: string]: any } = {}): QueryAction {
   return {
-    type: QUERY_FAILED(entity, query),
+    type: QUERY_HANDLING_FAILED(entity, query),
     query,
     metadata: {
       error,
+      entity,
+      ...metadata,
+    },
+  };
+}
+
+export function queryFailed(query: SerializableQuery, entity: string, metadata: { [key: string]: any } = {}): QueryAction {
+  return {
+    type: QUERY_FAILED(entity, query),
+    query,
+    metadata: {
       entity,
       ...metadata,
     },
@@ -150,6 +167,7 @@ export function queryHandelingActionTypes(entity: EntityName, query: QueryConstr
     transmitting: QUERY_TRANSMITTING(entity, query),
     transmittingSuccessfully: QUERY_TRANSMITTED_SUCCESSFULLY(entity, query),
     transmittingFailed: QUERY_TRANSMISSION_FAILED(entity, query),
+    queryHandlingFailed: QUERY_HANDLING_FAILED(entity, query),
     queryFailed: QUERY_FAILED(entity, query),
     querySucceeded: QUERY_SUCCEEDED(entity, query),
   };

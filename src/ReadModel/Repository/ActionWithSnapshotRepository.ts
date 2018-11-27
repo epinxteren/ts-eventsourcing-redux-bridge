@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { ActionRepositoryInterface } from '../ActionRepositoryInterface';
 import { ActionStream } from '../ActionStream';
 import { StoreRepository } from './StoreRepository';
+import { Observable } from 'rxjs';
 
 export class ActionWithSnapshotRepository<State,
   Id extends Identity = Identity,
@@ -18,7 +19,7 @@ export class ActionWithSnapshotRepository<State,
   }
 
   public async append(id: Id, eventStream: ActionStream<Action>): Promise<void> {
-    const model = await this.snapshotRepository.get(id);
+    const model = await this.snapshotRepository.find(id) || await this.snapshotRepository.create(id);
     const store = model.getStore();
     await eventStream.pipe(tap((action: Action) => {
       store.dispatch(action);
@@ -51,7 +52,7 @@ export class ActionWithSnapshotRepository<State,
     return this.actionRepository.loadFromPlayhead(id, playhead);
   }
 
-  public async remove(id: Identity): Promise<void> {
+  public async remove(id: Id): Promise<void> {
     await this.actionRepository.remove(id);
     await this.snapshotRepository.remove(id);
   }
@@ -59,6 +60,10 @@ export class ActionWithSnapshotRepository<State,
   public async save(model: StoreReadModel<State, Id, Metadata, Action>): Promise<void> {
     const events = await model.getUncommittedActions();
     return this.append(model.getId(), events);
+  }
+
+  public findAll(): Observable<StoreReadModel<State, Id, Metadata, Action>> {
+    return this.snapshotRepository.findAll();
   }
 
 }

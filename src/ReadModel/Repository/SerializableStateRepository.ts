@@ -4,6 +4,8 @@ import { Repository } from 'ts-eventsourcing/ReadModel/Repository';
 import { BlobReadModel } from 'ts-eventsourcing/ReadModel/BlobReadModel';
 import { Playhead } from '../../ValueObject/Playhead';
 import { Identity } from 'ts-eventsourcing/ValueObject/Identity';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface SerializedStateData {
   playhead: Playhead;
@@ -43,6 +45,10 @@ export class SerializableStateRepository<State, Id extends Identity> implements 
 
   public remove(id: Id): Promise<void> {
     return this.stateRepository.remove(id);
+  }
+
+  public findAll(): Observable<StateReadModel<State, Id>> {
+    return this.stateRepository.findAll().pipe(map((data) => this.deSerialize(data, data.getId())));
   }
 
   private deSerialize(data: BlobReadModel<SerializedStateData>, id: Identity) {

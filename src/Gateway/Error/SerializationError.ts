@@ -3,8 +3,8 @@ import { SerializableQuery } from '../../QueryHandling/SerializableQuery';
 import { SerializableCommand } from '../../CommandHandling/SerializableCommand';
 
 export class SerializationError extends Error {
-  public static actionCouldNotBeSerialized(event: any, error: Error) {
-    return new this('Event could not be serialized', event, error);
+  public static actionCouldNotBeSerialized(action: any, error: Error) {
+    return new this(`Action "${JSON.stringify(action)}" could not be serialized ${error.toString()}`, action, error);
   }
 
   public static commandCouldNotBeSerialized(command: any, error: Error) {

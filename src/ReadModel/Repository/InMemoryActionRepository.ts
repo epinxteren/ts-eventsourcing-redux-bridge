@@ -5,39 +5,40 @@ import { ReadModelAction, ReadModelMetadata } from '../ReadModelAction';
 import { tap, toArray } from 'rxjs/operators';
 import { NotFoundError } from '../Error/NotFoundError';
 import { Store } from 'redux';
-import { Playhead } from '../../ValueObject/Playhead';
+import { INITIAL_PLAYHEAD, Playhead } from '../../ValueObject/Playhead';
 import { ActionRepositoryInterface } from '../ActionRepositoryInterface';
 import { ActionStream } from '../ActionStream';
 import { SimpleActionStream } from '../SimpleActionStream';
+import { Observable } from 'rxjs';
+import { Map } from 'immutable';
 
 export class InMemoryActionRepository<State,
   Id extends Identity = Identity,
   Metadata extends ReadModelMetadata<Id> = ReadModelMetadata<Id>,
   Action extends ReadModelAction<Id, Metadata> = ReadModelAction<Id, Metadata>> implements ActionRepositoryInterface<State, Id, Metadata, Action> {
 
-  private readonly actions: { [id: string]: Action[] } = {};
+  private actions: Map<Id, Action[]> = Map();
 
   constructor(private readonly storeFactory: StoreFactory<State, Action>) {
 
   }
 
   public async create(id: Id): Promise<StoreReadModel<State, Id, Metadata, Action>> {
-    return new StoreReadModel<State, Id, Metadata, Action>(id, this.storeFactory.create(), 0);
+    return new StoreReadModel<State, Id, Metadata, Action>(id, this.storeFactory.create(), INITIAL_PLAYHEAD);
   }
 
   public async save(model: StoreReadModel<State, Id, Metadata, Action>): Promise<void> {
-    if (!this.actions[model.getId().toString()]) {
-      this.actions[model.getId().toString()] = [];
-    }
-    this.actions[model.getId().toString()] = await model.getUncommittedActions().pipe(toArray()).toPromise();
+    const actions: Action[] = await model.getUncommittedActions().pipe(toArray()).toPromise();
+    const previousActions: Action[] = this.actions.get(model.getId(), []);
+    this.actions = this.actions.set(model.getId(), previousActions.concat(actions));
   }
 
   public async has(id: Id): Promise<boolean> {
-    return !!this.actions[id.toString()];
+    return this.actions.has(id);
   }
 
   public async get(id: Id): Promise<StoreReadModel<State, Id, Metadata, Action>> {
-    const actions: Action[] = this.actions[id.toString()];
+    const actions: Action[] | undefined = this.actions.get(id);
     if (!actions) {
       throw NotFoundError.storeNotFound(id);
     }
@@ -56,20 +57,17 @@ export class InMemoryActionRepository<State,
     return this.get(id);
   }
 
-  public async remove(id: Identity): Promise<void> {
-    delete this.actions[id.toString()];
+  public async remove(id: Id): Promise<void> {
+    this.actions = this.actions.remove(id);
   }
 
   public async append(id: Id, eventStream: ActionStream<Action>): Promise<void> {
-    const actions: Action[] = this.actions[id.toString()];
-    if (!actions) {
-      throw NotFoundError.storeNotFound(id);
-    }
+    const actions: Action[] = this.actions.get(id, []);
     await eventStream.pipe(tap((action) => actions.push(action))).toPromise();
   }
 
   public load(id: Id): ActionStream<Action> {
-    const actions: Action[] = this.actions[id.toString()];
+    const actions: Action[] | undefined = this.actions.get(id);
     if (!actions) {
       throw NotFoundError.storeNotFound(id);
     }
@@ -77,11 +75,27 @@ export class InMemoryActionRepository<State,
   }
 
   public loadFromPlayhead(id: Id, playhead: number): ActionStream<Action> {
-    const actions: Action[] = this.actions[id.toString()];
+    const actions: Action[] | undefined = this.actions.get(id);
     if (!actions) {
       throw NotFoundError.storeNotFound(id);
     }
     return SimpleActionStream.of(actions.slice(playhead));
+  }
+
+  public findAll(): Observable<StoreReadModel<State, Id, Metadata, Action>> {
+    return new Observable<StoreReadModel<State, Id, Metadata, Action>>((observer) => {
+      const all = async () => {
+        for (const id of this.actions.keys()) {
+          if (observer.closed) {
+            return;
+          }
+          observer.next(await this.get(id));
+        }
+      };
+      all()
+        .then(() => observer.complete())
+        .catch((error) => observer.error(error));
+    });
   }
 
 }

@@ -8,7 +8,7 @@ import { emitQueryHandlerResponseOrErrorToClientGateway } from './emitQueryHandl
 /**
  * Dispatch on query bus and emit success or error on client gateway.
  *
- * This operator is optional, keep in mind ALL errors and responses are send back to the client.
+ * Keep in mind ALL errors and responses are send back to the client.
  * It's recommended to whitelist queries and errors that can be send back to the client.
  *
  *  emitQueryHandlerResponseOrErrorToClientGateway(

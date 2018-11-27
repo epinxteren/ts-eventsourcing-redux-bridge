@@ -5,10 +5,14 @@ import { timeout, filter, map, share, concatMap, take, takeUntil } from 'rxjs/op
 import {
   QUERY_FAILED,
   QUERY_SUCCEEDED,
-  QUERY_TRANSMISSION_FAILED,
   QUERY_TRANSMITTING,
 } from '../actions';
-import { QueryAction, isQueryAction, isQueryActionOfType } from '../QueryAction';
+import {
+  QueryAction,
+  isQueryAction,
+  isQueryActionOfType,
+  QueryResponseAction,
+} from '../QueryAction';
 import { withEntityName } from '../../Redux/Operators/EntityMetadata';
 import { ofType } from '../../Redux/Operators/Action';
 
@@ -47,8 +51,9 @@ export function queryHandlerResponseMiddleware<D extends Dispatch = Dispatch, S 
       const response$ = queriesForEntity$.pipe(
         ofType(QUERY_SUCCEEDED(entity, query)),
         take(1),
+        map((nextQueryAction) => nextQueryAction as QueryResponseAction),
         map((nextQueryAction) => {
-          return nextQueryAction.metadata.response;
+          return nextQueryAction.response;
         }),
         share(),
       );
@@ -58,7 +63,6 @@ export function queryHandlerResponseMiddleware<D extends Dispatch = Dispatch, S 
         timeout(timeoutTime),
         // Or throw when one of the following event are given.
         ofType(
-          QUERY_TRANSMISSION_FAILED(entity, query),
           QUERY_FAILED(entity, query),
         ),
         concatMap((nextQueryAction) => {

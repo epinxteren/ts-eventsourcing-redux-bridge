@@ -1,7 +1,8 @@
 import { AnyAction, Dispatch, MiddlewareAPI } from 'redux';
 import { isQueryActionOfType } from '../QueryAction';
 import {
-  QUERY_TRANSMITTING,
+  QUERY_HANDLING_FAILED, QUERY_TRANSMISSION_FAILED,
+  QUERY_TRANSMITTING, queryFailed,
   queryTransmissionFailed,
   queryTransmittedSuccessfully,
 } from '../actions';
@@ -16,12 +17,14 @@ export function queryMiddleware<D extends Dispatch = Dispatch, S = any, Action e
           api.dispatch(queryTransmittedSuccessfully(action.query, action.metadata.entity, action.metadata));
         })
         .catch((error) => {
-          api.dispatch(queryTransmissionFailed(action.query, action.metadata.entity, {
-            ...action.metadata,
-            error,
-          }));
+          api.dispatch(queryTransmissionFailed(action.query, action.metadata.entity, error, action.metadata));
         });
+      if (
+        isQueryActionOfType(action, QUERY_HANDLING_FAILED) ||
+        isQueryActionOfType(action, QUERY_TRANSMISSION_FAILED)) {
+        api.dispatch(queryFailed(action.query, action.metadata.entity, action.metadata));
+      }
+      return response;
     }
-    return response;
   };
 }

@@ -22,7 +22,4 @@ export class InvalidTypeError extends Error {
     return new this(`Aggregate Id ${ClassUtil.nameOffInstance(action.metadata.aggregateId)} is not an instance of ${ClassUtil.nameOffConstructor(IdClass)}`);
   }
 
-  public static actionMissingValidPlayhead(playhead: unknown) {
-    return new this(`Action is missing valid playhead ${playhead}`);
-  }
 }

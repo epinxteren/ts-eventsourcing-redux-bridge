@@ -58,9 +58,8 @@ it('Should handle failed', async () => {
 
   await expect(gateway.emit()).rejects.toEqual('Some error');
   expect(next).toBeCalledWith(action);
-  expect(api.dispatch).toBeCalledWith(queryTransmissionFailed(action.query, action.metadata.entity, {
+  expect(api.dispatch).toBeCalledWith(queryTransmissionFailed(action.query, action.metadata.entity, 'Some error', {
     ...action.metadata,
-    error: 'Some error',
   }));
 
 });

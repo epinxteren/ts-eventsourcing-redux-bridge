@@ -4,16 +4,21 @@ import { InvalidCommandTypeError } from './Error/InvalidCommandTypeError';
 import { Command, CommandConstructor } from 'ts-eventsourcing/CommandHandling/Command';
 import { EntityName } from '../ValueObject/EntityName';
 import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
+import { SerializableQuery } from '../QueryHandling/SerializableQuery';
 
 export interface CommandAction<T extends SerializableCommand = SerializableCommand, Metadata = {}> {
   type: string;
-  metadata: EntityMetadata & Metadata;
+  metadata: EntityMetadata & Metadata & { response?: any };
   command: T;
+}
+
+export interface CommandResponseAction<T extends SerializableCommand = SerializableQuery, Response = {}, Metadata = {}> extends CommandAction<T, Metadata> {
+  response: Response;
 }
 
 export function commandActionTypeFactory(type: string) {
   return (entity: EntityName, command: CommandConstructor | Command) => {
-    return actionTypeWithEntity(`[${ClassUtil.nameOff(command)}] ${type}` , entity);
+    return actionTypeWithEntity(`[${ClassUtil.nameOff(command)}] ${type}`, entity);
   };
 }
 

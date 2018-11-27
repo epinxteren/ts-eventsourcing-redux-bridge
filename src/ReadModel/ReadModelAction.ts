@@ -24,9 +24,6 @@ export function asReadModelAction<
   if (!(action.metadata.recordedOn instanceof Date)) {
     throw InvalidTypeError.actionMissingRecordedOn();
   }
-  if (typeof action.metadata.playhead !== 'number') {
-    throw InvalidTypeError.actionMissingValidPlayhead(action.metadata.playhead);
-  }
   if (ReadModelIdClass && !(action.metadata.readModelId instanceof ReadModelIdClass)) {
     throw InvalidTypeError.actionReadModelIdNotInstanceOf(action, ReadModelIdClass);
   }

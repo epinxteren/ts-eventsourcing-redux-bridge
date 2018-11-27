@@ -8,11 +8,16 @@ import { Query, QueryConstructor } from 'ts-eventsourcing/QueryHandling/Query';
 import { InvalidQueryTypeError } from './Error/InvalidQueryTypeError';
 import { EntityName } from '../ValueObject/EntityName';
 import { ClassUtil } from 'ts-eventsourcing/ClassUtil';
+import { ClassConstructor } from '../Serializer/ClassConstructor';
 
 export interface QueryAction<T extends SerializableQuery = SerializableQuery, Metadata = {}> {
   type: string;
   metadata: EntityMetadata & Metadata;
   query: T;
+}
+
+export interface QueryResponseAction<T extends SerializableQuery = SerializableQuery, Response = any, Metadata = {}> extends QueryAction<T, Metadata> {
+  response: Response;
 }
 
 export function isQueryAction(action: any): action is QueryAction {
@@ -40,6 +45,27 @@ export function asQueryAction<T extends SerializableQuery = SerializableQuery, M
   }
   if (!(action.query instanceof query)) {
     throw InvalidQueryTypeError.doesNotMatchQuery(action.query, query);
+  }
+  return action as any;
+}
+
+export function asQueryActionWithResponse<T extends SerializableQuery = SerializableQuery, Response = any, Metadata = {}>(
+  action: any,
+  query: QueryConstructor<T>,
+  responseClass?: ClassConstructor<Response>,
+): QueryResponseAction<T, Metadata, Response> {
+  if (!isQueryAction(action)) {
+    throw InvalidQueryTypeError.actionIsNotAnQueryAction();
+  }
+  if (!(action.query instanceof query)) {
+    throw InvalidQueryTypeError.doesNotMatchQuery(action.query, query);
+  }
+  const response = (action as any).response;
+  if (typeof response === 'undefined') {
+    throw InvalidQueryTypeError.doesNotHaveResponse(action.query);
+  }
+  if (responseClass && !(response instanceof responseClass)) {
+    throw InvalidQueryTypeError.doesNotHaveCorrectResponse(action.query, responseClass);
   }
   return action as any;
 }
