@@ -19,7 +19,7 @@ export class ReduxEventSourcingTestBench extends EventSourcingTestBench {
 
   public getReduxReadModelTestContext<Id extends Identity, State extends Record<any>>(state: State, reducer: Reducer<State, SerializableAction>): ReduxReadModelTestContext<Id, State> {
     const name = Record.getDescriptiveName(state);
-    let context: ReduxReadModelTestContext<Id, State> = this.models.getByName(name) as any;
+    let context: ReduxReadModelTestContext<Id, State> = this.models.map[name] as any;
     if (context) {
       if (!(context instanceof ReduxReadModelTestContext)) {
         throw new Error(`Test context with name ${name} is not an instanceof ReduxReadModelTestContext`);
@@ -38,7 +38,7 @@ export class ReduxEventSourcingTestBench extends EventSourcingTestBench {
 
   public getActionGateway<Id extends Identity, State extends Record<any>>(state: State): GateWayFactoryMock<State, Id, any> {
     const name = Record.getDescriptiveName(state);
-    const context: ReduxReadModelTestContext<Id, State> = this.models.getByName(name) as any;
+    const context: ReduxReadModelTestContext<Id, State> = this.models.map[name] as any;
     if (!context) {
       throw new Error(`Context for ${name} state does not yet exists`);
     }
@@ -65,7 +65,7 @@ export class ReduxEventSourcingTestBench extends EventSourcingTestBench {
     aggregateId: AggregateId,
     entity: EntityName,
     event: DomainEvent,
-    playhead: Playhead = 0,
+    playhead: Playhead = INITIAL_PLAYHEAD + 1,
     metadata: { entity?: string, [extraProps: string]: any } = {}):
     DomainEventAction<DomainEvent, ReadModelId, AggregateId, DomainEventMetadata<ReadModelId, AggregateId> & typeof metadata> {
     const domainMessage = this.domainMessageFactory.createDomainMessage<AggregateId>(aggregateId, event);

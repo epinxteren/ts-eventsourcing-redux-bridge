@@ -12,7 +12,8 @@ export type Nullable<T> = {
 export interface WithPlayheadInterface {
   readonly playhead: Playhead;
   setPlayhead(playhead?: Playhead): this;
-  play(): this;
+
+  mutate(playhead: number | undefined, mutator: (self: this) => this): this;
 }
 
 export function RecordWithPlayhead<T, DefaultProps = Nullable<T>>(defaultState: DefaultProps, name: string, initialPlayhead: Playhead = INITIAL_PLAYHEAD) {
@@ -24,6 +25,13 @@ export function RecordWithPlayhead<T, DefaultProps = Nullable<T>>(defaultState: 
         throw PlayheadError.doesNotMatch(this.playhead, playhead);
       }
       return this.set('playhead', playhead);
+    }
+    public mutate(playhead: number | undefined, mutator: (self: this) => this): this {
+      const newState = mutator(this);
+      if (newState !== this) {
+        return newState.setPlayhead(playhead);
+      }
+      return this;
     }
   } as any as new (defaultProps?: DefaultProps) => (WithPlayheadInterface & Record<WithPlayhead> & WithPlayhead);
 }

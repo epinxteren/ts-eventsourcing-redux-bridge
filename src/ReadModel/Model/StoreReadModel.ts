@@ -19,14 +19,14 @@ export class StoreReadModel<State,
     const dispatch = this.store.dispatch;
     store.dispatch = (action) => {
       const readModelAction = asReadModelAction<Id, Metadata>(action) as Action;
+      this.lastPlayhead = this.lastPlayhead + 1;
+      readModelAction.metadata.playhead = this.lastPlayhead;
       const state = store.getState();
       const result = dispatch.call(store, action);
       const newState = store.getState();
       if (state === newState) {
         return result;
       }
-      this.lastPlayhead = this.lastPlayhead + 1;
-      readModelAction.metadata.playhead = this.lastPlayhead;
       this.uncommittedActions.push(readModelAction);
       return result;
     };

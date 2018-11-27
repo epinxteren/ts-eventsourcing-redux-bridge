@@ -4377,10 +4377,10 @@ trim-right@^1.0.1:
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
 
-ts-eventsourcing@^1.1.17:
-  version "1.1.17"
-  resolved "https://registry.yarnpkg.com/ts-eventsourcing/-/ts-eventsourcing-1.1.17.tgz#bc3acbcf48ec0af251313b474e15494d16e6bdc0"
-  integrity sha512-8mpwAs5XmGSuGfHzXPHi4oUmOXiZM8Wdg8kkdwpXth+OqGMv/OQrUXg1CKBTPMQrk6V5XLfN9Kg92bgsVcmlyQ==
+ts-eventsourcing@^1.1.18:
+  version "1.1.18"
+  resolved "https://registry.yarnpkg.com/ts-eventsourcing/-/ts-eventsourcing-1.1.18.tgz#8ce8d5732824d0535f83e598682fa2273f63ed2b"
+  integrity sha512-Kut3BcHS4RYZV6wLJk9RsUrwe/xVnsSBTBONwAI6T2a7gzZymUPBex1SvIONn3U7D3uYFrQC0Pu+amS6+XRCbw==
   dependencies:
     "@types/extsprintf" "^1.4.0"
     "@types/uuid" "^3.4.3"
