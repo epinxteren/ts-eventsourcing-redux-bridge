@@ -3114,6 +3114,11 @@ moment@*, moment@^2.22.2:
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
   integrity sha1-PCV/mDn8DpP/UxSWMiOeuQeD/2Y=
 
+moment@^2.23:
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.23.0.tgz#759ea491ac97d54bac5ad776996e2a58cc1bc225"
+  integrity sha512-3IE39bHVqFbWWaPOMHZF98Q9c3LDKGTmypMiTM2QygGXXElkFWIH7GxfmlwmY2vwa+wmNsoYZmG2iusf1ZjJoA==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -4377,10 +4382,24 @@ trim-right@^1.0.1:
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
 
-ts-eventsourcing@^1.1.18:
-  version "1.1.18"
-  resolved "https://registry.yarnpkg.com/ts-eventsourcing/-/ts-eventsourcing-1.1.18.tgz#8ce8d5732824d0535f83e598682fa2273f63ed2b"
-  integrity sha512-Kut3BcHS4RYZV6wLJk9RsUrwe/xVnsSBTBONwAI6T2a7gzZymUPBex1SvIONn3U7D3uYFrQC0Pu+amS6+XRCbw==
+triviality-logger@^0.1.1:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/triviality-logger/-/triviality-logger-0.1.2.tgz#37aa17f422bec1325f1d8bc10f8ac57d730de0ca"
+  integrity sha512-2OmxuzI/ZzJF5GKx0+HlvvOJZFThdVNFw/69LbBHiMUKFqE6wStghtKEpm7Pglo1Y/BuDEkofjsduw1dAQtFhg==
+  dependencies:
+    moment "^2.23"
+    triviality "^0"
+    ts-log "^2.1"
+
+triviality@^0, triviality@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/triviality/-/triviality-0.4.3.tgz#c70810a0d50b6c09aa2abc0694a0ebbb44b2a6af"
+  integrity sha512-Rn89COqShc6IKMCi6qfZGCm6LPXz1gjvcgt0koEX21jyBJRCV/7dI88+0ygrt+D/eX8AWSemZEUpS5FjMiLYMw==
+
+ts-eventsourcing@^1.2:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/ts-eventsourcing/-/ts-eventsourcing-1.2.0.tgz#36f24e63e460dba1a2cd7b3943c31e205eb6a54b"
+  integrity sha512-x/xkOg9nadJ8860tQAyrqeh2B6rt4YCsJrVSdaZwQPwmTUPIB1mKdep8RXmueV6fC6otm+7Na7HgQ3fkGTaeyw==
   dependencies:
     "@types/extsprintf" "^1.4.0"
     "@types/uuid" "^3.4.3"
@@ -4391,6 +4410,8 @@ ts-eventsourcing@^1.1.18:
     rxjs "^6.3.3"
     transit-immutable-js "^0.7.0"
     transit-js "^0.8.861"
+    triviality "^0.4.3"
+    triviality-logger "^0.1.1"
     tslib "^1.9.3"
     uuid "^3.2.1"
     uuid-validate "^0.0.2"
@@ -4404,6 +4425,11 @@ ts-jest@^23.1.3:
     fs-extra "6.0.1"
     json5 "^0.5.0"
     lodash "^4.17.10"
+
+ts-log@^2.1:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/ts-log/-/ts-log-2.1.4.tgz#063c5ad1cbab5d49d258d18015963489fb6fb59a"
+  integrity sha512-P1EJSoyV+N3bR/IWFeAqXzKPZwHpnLY6j7j58mAvewHRipo+BQM2Y1f9Y9BjEQznKwgqqZm7H8iuixmssU7tYQ==
 
 tslib@1.9.0:
   version "1.9.0"

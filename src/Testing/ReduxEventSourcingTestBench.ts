@@ -11,14 +11,23 @@ import { Reducer } from 'redux';
 import { GateWayFactoryMock } from './GateWayFactoryMock';
 import { ReduxReadModelTestContext } from './Context/ReduxReadModelTestContext';
 
+export type StateReference = Record<any> | (new (...args: any[]) => Record<any>) & Record<any>;
+
+export function getDescriptiveRecordName(reference: StateReference) {
+  if (typeof reference === 'function') {
+    return reference.name;
+  }
+  return Record.getDescriptiveName(reference);
+}
+
 export class ReduxEventSourcingTestBench extends EventSourcingTestBench {
 
   public static create(currentTime?: Date | string) {
     return new this(currentTime);
   }
 
-  public getReduxReadModelTestContext<Id extends Identity, State extends Record<any>>(state: State, reducer: Reducer<State, SerializableAction>): ReduxReadModelTestContext<Id, State> {
-    const name = Record.getDescriptiveName(state);
+  public getReduxReadModelTestContext<Id extends Identity, State extends StateReference>(state: State, reducer: Reducer<State, SerializableAction>): ReduxReadModelTestContext<Id, State> {
+    const name = getDescriptiveRecordName(state);
     let context: ReduxReadModelTestContext<Id, State> = this.models.map[name] as any;
     if (context) {
       if (!(context instanceof ReduxReadModelTestContext)) {
@@ -31,13 +40,13 @@ export class ReduxEventSourcingTestBench extends EventSourcingTestBench {
     return context;
   }
 
-  public createActionGatewayFactory<Id extends Identity, State extends Record<any>>(state: State, reducer: Reducer<State, SerializableAction>): GateWayFactoryMock<State, Id, any> {
+  public createActionGatewayFactory<Id extends Identity, State extends StateReference>(state: State, reducer: Reducer<State, SerializableAction>): GateWayFactoryMock<State, Id, any> {
     const context = this.getReduxReadModelTestContext<Id, State>(state, reducer);
     return context.gatewayFactory;
   }
 
-  public getActionGateway<Id extends Identity, State extends Record<any>>(state: State): GateWayFactoryMock<State, Id, any> {
-    const name = Record.getDescriptiveName(state);
+  public getActionGateway<Id extends Identity, State extends StateReference>(state: State): GateWayFactoryMock<State, Id, any> {
+    const name = getDescriptiveRecordName(state);
     const context: ReduxReadModelTestContext<Id, State> = this.models.map[name] as any;
     if (!context) {
       throw new Error(`Context for ${name} state does not yet exists`);
@@ -48,13 +57,13 @@ export class ReduxEventSourcingTestBench extends EventSourcingTestBench {
     return context.gatewayFactory;
   }
 
-  public thenActionsShouldBeTransmitted<State extends Record<any>>(expectedActions: SerializableAction[], state?: State, options?: any) {
+  public thenActionsShouldBeTransmitted<State extends StateReference>(expectedActions: SerializableAction[], state?: State, options?: any) {
     return this.addTask(async () => {
       expect(await this.getTransmittedActions(state, options)).toEqual(expectedActions);
     });
   }
 
-  public thenActionsShouldMatchSnapshot<State extends Record<any>>(state?: State, options?: any) {
+  public thenActionsShouldMatchSnapshot<State extends StateReference>(state?: State, options?: any) {
     return this.addTask(async () => {
       expect(await this.getTransmittedActions(state, options)).toMatchSnapshot();
     });
@@ -94,7 +103,7 @@ export class ReduxEventSourcingTestBench extends EventSourcingTestBench {
     }).toList() as any;
   }
 
-  protected async getTransmittedActions<State extends Record<any>>(state?: State, options?: any) {
+  protected async getTransmittedActions<State extends StateReference>(state?: State, options?: any) {
     await this.thenWaitUntilProcessed();
     let actionsActual: SerializableAction[] = [];
     if (state) {
